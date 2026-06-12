@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ボレロ・オーケストラ実験室</title>
+<style>
+  :root{
+    --accent:#4a90c4;
+    --accent-soft:#4a90c418;
+    --ink:#2b2a28;
+    --paper:#f7f4ec;
+    --card:#ffffff;
+    --line:#d8d2c4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; padding:0 12px 40px;
+    background:var(--paper); color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  }
+  header{
+    max-width:1080px; margin:0 auto; padding:18px 4px 10px;
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px;
+  }
+  h1{font-size:21px; margin:0; letter-spacing:.04em;}
+  h1 .sub{font-size:13px; font-weight:normal; color:#6b675e; margin-left:10px;}
+  .name-box{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:14px;}
+  .name-box input{
+    font-size:15px; padding:6px 10px; border:1px solid var(--line);
+    border-radius:8px; background:#fff; width:170px;
+  }
+  nav.modes{
+    max-width:1080px; margin:0 auto 14px; display:flex; gap:8px;
+  }
+  nav.modes button{
+    flex:1; font-family:inherit; font-size:15px; font-weight:bold;
+    padding:11px 8px; border-radius:12px; cursor:pointer;
+    border:2px solid var(--line); background:#fff; color:#6b675e;
+  }
+  nav.modes button.active{
+    background:var(--accent); border-color:var(--accent); color:#fff;
+  }
+  main{max-width:1080px; margin:0 auto; display:flex; flex-direction:column; gap:14px;}
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px 16px;
+    box-shadow:0 1px 4px rgba(0,0,0,.05);
+  }
+  .card h2{font-size:14px; margin:0 0 10px; color:#6b675e; letter-spacing:.08em;}
+  .hidden{display:none !important;}
+  /* 旋律えらび */
+  .melodies{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .mel-btn{
+    text-align:left; cursor:pointer; font-family:inherit;
+    border:2px solid var(--line); border-radius:12px; background:#fff;
+    padding:12px 14px; font-size:15px;
+  }
+  .mel-btn .m-name{font-weight:bold; font-size:18px;}
+  .mel-btn .m-desc{display:block; font-size:12.5px; color:#6b675e; margin-top:4px; line-height:1.5;}
+  .mel-btn.active{border-color:var(--accent); background:var(--accent-soft);}
+  /* 楽器えらび */
+  .insts{display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:10px;}
+  .inst-btn{
+    text-align:left; cursor:pointer; font-family:inherit;
+    border:2px solid var(--line); border-radius:12px; background:#fff;
+    padding:10px 12px;
+  }
+  .inst-btn .i-fam{
+    display:inline-block; font-size:10.5px; color:#fff; border-radius:20px;
+    padding:1px 8px; margin-bottom:4px;
+  }
+  .inst-btn .i-name{display:block; font-weight:bold; font-size:15.5px;}
+  .inst-btn .i-desc{display:block; font-size:11.5px; color:#6b675e; margin-top:3px; line-height:1.45;}
+  .inst-btn.active{border-color:var(--i-color); background:var(--i-soft); box-shadow:0 0 0 2px var(--i-soft);}
+  .inst-btn.relay-flash{box-shadow:0 0 0 4px var(--i-soft);}
+  /* ならす */
+  canvas#score{width:100%; height:auto; display:block; border:1px solid var(--line); border-radius:10px; background:#fdfcf8;}
+  .controls{display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin-top:12px;}
+  button.ctl{
+    font-family:inherit; font-size:15px; padding:9px 18px;
+    border-radius:10px; border:1px solid var(--line); background:#fff; cursor:pointer;
+  }
+  button.ctl:active{transform:translateY(1px);}
+  button.primary{background:var(--accent); color:#fff; border-color:var(--accent); font-weight:bold; min-width:116px;}
+  .ctl-group{display:flex; align-items:center; gap:6px; font-size:14px;}
+  input[type=range]{width:120px; accent-color:var(--accent);}
+  label.chk{display:flex; align-items:center; gap:4px; font-size:14px; cursor:pointer; white-space:nowrap;}
+  .order{font-size:13.5px; line-height:2; margin:0;}
+  .order b{color:var(--accent);}
+  .note{font-size:12px; color:#8a857a; margin-top:8px; line-height:1.6;}
+  /* 印象のことば */
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:4px;}
+  .chip{
+    font-size:13px; border:1.5px solid var(--line); border-radius:20px;
+    padding:5px 12px; background:#fdfcf8; color:#5d594f;
+    cursor:pointer; font-family:inherit;
+  }
+  .chip.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:bold;}
+  .imp-records{margin-top:12px; font-size:13.5px; line-height:2;}
+  .imp-records .rec-name{font-weight:bold;}
+  /* マイ・ボレロ */
+  .mb-slots{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
+  .mb-slot{
+    border:2px solid var(--line); border-radius:12px; padding:10px 12px; background:#fff;
+  }
+  .mb-slot.now{border-color:var(--accent); background:var(--accent-soft);}
+  .mb-slot .s-title{font-weight:bold; font-size:14px; margin-bottom:8px; color:#6b675e;}
+  .mb-slot .s-vol{font-size:11px; color:#a09a8c; margin-left:6px;}
+  .mb-mel{display:flex; gap:6px; margin-bottom:8px;}
+  .mb-mel button{
+    flex:1; font-family:inherit; font-size:14px; font-weight:bold; padding:6px 0;
+    border-radius:8px; border:1.5px solid var(--line); background:#fff; cursor:pointer;
+  }
+  .mb-mel button.on{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .mb-slot select{
+    width:100%; font-family:inherit; font-size:14px; padding:7px 8px;
+    border:1.5px solid var(--line); border-radius:8px; background:#fff;
+  }
+  textarea#mbReason{
+    width:100%; min-height:84px; font-family:inherit; font-size:14px;
+    border:1.5px solid var(--line); border-radius:10px; padding:10px; resize:vertical;
+    margin-top:8px; background:#fffdf8;
+  }
+  .eval-note{
+    margin-top:10px; padding:9px 12px; border-radius:10px;
+    background:#fdf6e4; border:1px solid #e0cfa0; font-size:13px; line-height:1.7;
+  }
+  /* クイズ */
+  .quiz-status{display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;}
+  .quiz-score{font-size:17px; font-weight:bold;}
+  .quiz-msg{font-size:16px; font-weight:bold; min-height:1.4em;}
+  .quiz-msg.good{color:#3f7a4f;}
+  .quiz-msg.bad{color:#b04a5a;}
+  .quiz-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin-top:10px;}
+  .quiz-grid button{
+    font-family:inherit; font-size:15px; font-weight:bold; padding:13px 6px;
+    border-radius:12px; border:2px solid var(--line); background:#fff; cursor:pointer;
+  }
+  .quiz-grid button:disabled{opacity:.55; cursor:default;}
+  .quiz-grid button.correct{border-color:#3f7a4f; background:#3f7a4f22;}
+  .quiz-grid button.wrong{border-color:#b04a5a; background:#b04a5a22;}
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
+    background:#333; color:#fff; padding:10px 18px; border-radius:10px;
+    font-size:14px; opacity:0; pointer-events:none; transition:opacity .3s; z-index:10;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <h1>ボレロ・オーケストラ実験室<span class="sub">同じ旋律でも、楽器がかわると印象はどうかわる？</span></h1>
+  <div class="name-box">
+    <label for="userName">名前</label>
+    <input id="userName" type="text" placeholder="なまえ を入力" maxlength="20">
+  </div>
+</header>
+
+<nav class="modes">
+  <button data-mode="listen">🎧 きく・くらべる</button>
+  <button data-mode="mybolero">🎼 マイ・ボレロ</button>
+  <button data-mode="quiz">❓ 音色あてクイズ</button>
+</nav>
+
+<main>
+  <!-- ===== きく・くらべる ===== -->
+  <section class="card" data-show="listen">
+    <h2>① 旋律をえらぶ（ラヴェル《ボレロ》より・各16小節）</h2>
+    <div class="melodies" id="melList"></div>
+  </section>
+
+  <section class="card" data-show="listen">
+    <h2>② 楽器をえらぶ（再生中にかえると、とちゅうで交代できます）</h2>
+    <div class="insts" id="instList"></div>
+  </section>
+
+  <section class="card" data-show="listen">
+    <h2>③ ならして、くらべる</h2>
+    <canvas id="score" width="1040" height="270"></canvas>
+    <div class="controls">
+      <button class="ctl primary" id="playBtn">▶ 再生</button>
+      <div class="ctl-group">
+        <span>はやさ ♩=</span><span id="tempoVal">72</span>
+        <input type="range" id="tempo" min="56" max="96" step="2" value="72">
+      </div>
+      <label class="chk"><input type="checkbox" id="snareChk" checked>小太鼓のリズム</label>
+      <label class="chk"><input type="checkbox" id="bassChk" checked>低音の伴奏</label>
+      <label class="chk"><input type="checkbox" id="loopChk" checked>くり返し</label>
+      <label class="chk"><input type="checkbox" id="relayChk">楽器リレー</label>
+      <label class="chk"><input type="checkbox" id="crescChk">クレッシェンド（くり返すたび大きく）</label>
+    </div>
+    <div class="note">「楽器リレー」＋「クレッシェンド」をONにすると、ppp からだんだん大きくなる原曲の体験ができます。図のたての位置は音の高さです。</div>
+  </section>
+
+  <section class="card" data-show="listen">
+    <h2>④ 印象をことばで記録しよう（タップで、いま選んでいる楽器に記録されます）</h2>
+    <div class="chips" id="impChips"></div>
+    <div class="imp-records" id="impRecords"></div>
+    <div class="controls">
+      <button class="ctl" id="impClearBtn">この楽器の記録を消す</button>
+      <button class="ctl" id="sheetBtn1">🖼 提出シートを画像で保存</button>
+    </div>
+  </section>
+
+  <section class="card" data-show="listen">
+    <h2>原曲ではどの楽器が演奏している？（登場順）</h2>
+    <p class="order">
+      <b>旋律A</b>：①フルート → ②クラリネット → ⑤オーボエ・ダモーレ → ⑥フルート＋弱音器トランペット → ⑨ホルン＋チェレスタ → ⑩木管の四重奏 → ⑬⑭ヴァイオリン＋木管 → ⑰総奏<br>
+      <b>旋律B</b>：③ファゴット → ④小クラリネット → ⑦テナーサックス → ⑧ソプラノサックス → ⑪トロンボーン → ⑫高音の木管 → ⑮⑯金管も加わる → ⑱全楽器＋転調！
+    </p>
+  </section>
+
+  <!-- ===== マイ・ボレロ ===== -->
+  <section class="card" data-show="mybolero">
+    <h2>🎼 マイ・ボレロをつくろう 〜きみが作曲家だったら、どの順番で楽器をリレーさせる？〜</h2>
+    <div class="mb-slots" id="mbSlots"></div>
+    <div class="controls">
+      <button class="ctl primary" id="mbPlayBtn">▶ とおして再生</button>
+      <div class="ctl-group">
+        <label class="chk"><input type="radio" name="mbLen" value="s" checked>短く（各8小節）</label>
+        <label class="chk"><input type="radio" name="mbLen" value="f">原曲どおり（各16小節＋間）</label>
+      </div>
+    </div>
+    <div class="note">再生すると、原曲のように音量が自動でだんだん大きくなります（第1変奏 ppp → 第4変奏 f）。</div>
+    <textarea id="mbReason" placeholder="理由を書こう：「1番目は◯◯。なぜなら、はじまりは…な音色がいいから」。音色（ねいろ）のことばを必ず使うこと。"></textarea>
+    <div class="controls">
+      <button class="ctl" id="mbCopyBtn">🔗 リンクをコピー（提出）</button>
+      <button class="ctl" id="sheetBtn2">🖼 提出シートを画像で保存</button>
+    </div>
+    <div class="eval-note">
+      📝 <b>評価のポイント</b>：①リレーの順番に音色の根拠があるか　②音色のことばを使って理由が書けているか　③ラヴェルの工夫（弱→強、ソロ→重奏）とくらべられているか
+    </div>
+  </section>
+
+  <!-- ===== 音色あてクイズ ===== -->
+  <section class="card" data-show="quiz">
+    <h2>❓ 音色あてクイズ 〜どの楽器が演奏しているか、音色だけで当てよう〜</h2>
+    <div class="quiz-status">
+      <span class="quiz-score" id="quizScore">正解 0 / 0問</span>
+      <button class="ctl primary" id="quizStartBtn">▶ 問題を出す</button>
+      <button class="ctl" id="quizReplayBtn" disabled>🔁 もう一度きく</button>
+      <button class="ctl" id="quizResetBtn">成績をリセット</button>
+    </div>
+    <div class="quiz-msg" id="quizMsg">「問題を出す」をおすと、どれかの楽器が旋律を演奏します。</div>
+    <div class="quiz-grid" id="quizGrid"></div>
+    <div class="note">ヒント：音の高さ（音域）も楽器の個性のひとつ。低くひびいたらファゴットやトロンボーンかも。正解数はワークシートに記録しよう。</div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ========= 旋律データ（[開始, 長さ, 音高] 単位は4分音符=12） ========= */
+const MELODY_A=[[0,18,72],[18,3,71],[21,3,72],[24,3,74],[27,3,72],[30,3,71],[33,3,69],[36,6,72],[42,3,72],[45,3,69],[48,18,72],[66,3,71],[69,3,72],[72,3,69],[75,3,67],[78,3,64],[81,3,65],[84,27,67],[111,3,65],[114,3,64],[117,3,62],[120,3,64],[123,3,65],[126,3,67],[129,3,69],[132,27,67],[159,3,69],[162,3,71],[165,3,69],[168,3,67],[171,3,65],[174,3,64],[177,3,62],[180,3,64],[183,3,62],[186,12,60],[198,3,60],[201,3,62],[204,6,64],[210,6,65],[216,12,62],[228,54,67],[288,21,74],[309,3,72],[312,3,71],[315,3,69],[318,3,71],[321,3,72],[324,3,74],[327,3,72],[330,9,71],[339,3,72],[342,3,71],[345,3,69],[348,3,72],[351,3,71],[354,3,69],[357,9,65],[366,3,65],[369,3,65],[372,3,65],[378,3,69],[384,3,72],[387,3,69],[390,3,71],[393,3,67],[396,6,65],[402,3,65],[405,3,65],[408,3,65],[414,3,69],[420,3,71],[423,3,67],[426,3,69],[429,3,65],[432,6,62],[438,3,62],[441,3,60],[444,18,62],[462,3,62],[465,3,62],[468,3,62],[474,3,65],[480,3,69],[483,3,65],[486,3,67],[489,3,64],[492,6,62],[498,3,62],[501,3,60],[504,18,62],[522,3,62],[525,3,60],[528,6,62],[534,3,64],[537,3,65],[540,27,67],[567,3,65],[570,3,64],[573,3,62],[576,6,60]];
+const MELODY_B=[[0,15,82],[15,3,81],[18,3,79],[21,3,77],[24,3,82],[27,3,84],[30,3,81],[33,3,79],[36,6,82],[42,3,81],[45,3,79],[48,12,82],[60,3,81],[63,3,82],[66,3,81],[69,18,79],[87,3,77],[90,3,76],[93,3,74],[96,24,76],[126,6,82],[132,6,84],[138,12,85],[150,12,85],[162,6,85],[168,6,85],[174,6,85],[180,4,85],[184,4,85],[188,4,85],[192,6,85],[198,3,84],[201,3,82],[204,6,85],[210,3,84],[213,3,82],[216,3,85],[219,3,84],[222,3,82],[225,3,80],[228,3,79],[231,3,77],[234,48,76],[288,18,74],[306,6,76],[312,3,74],[315,3,76],[318,18,77],[336,6,79],[342,6,80],[348,4,77],[352,4,79],[356,4,76],[360,3,74],[363,3,76],[366,3,74],[369,9,72],[378,21,70],[399,3,72],[402,3,70],[405,3,72],[408,3,74],[411,3,76],[414,3,74],[417,3,72],[420,3,74],[423,3,72],[426,3,70],[429,3,68],[432,3,70],[435,3,68],[438,12,67],[450,33,65],[483,3,67],[486,3,65],[489,27,63],[516,3,65],[519,3,63],[522,3,65],[525,30,61],[555,3,61],[558,3,63],[561,3,61],[564,3,65],[567,3,63],[570,3,61],[573,9,60]];
+const BAR = 36;
+const LOOP_UNITS = 18*BAR;
+const SNARE1=[[0,1],[6,0],[8,0],[10,0],[12,1],[18,0],[20,0],[22,0],[24,1],[30,0]];
+const SNARE2=[[0,1],[6,0],[8,0],[10,0],[12,1],[18,0],[20,0],[22,0],[24,1],[26,0],[28,0],[30,0],[32,0],[34,0]];
+
+const MELODIES = {
+  A:{name:"旋律A", desc:"なだらかで、おだやか。ハ長調のやさしい旋律。", data:MELODY_A},
+  B:{name:"旋律B", desc:"♭や♯の音が多く、かげりのあるエキゾチックな旋律。", data:MELODY_B},
+};
+const INSTRUMENTS=[
+  {id:"flute",    name:"フルート",     fam:"木管楽器", famColor:"#4a7a3a", desc:"息でならす、すんだ高い音",            off: 12, color:"#4a90c4"},
+  {id:"oboe",     name:"オーボエ",     fam:"木管楽器", famColor:"#4a7a3a", desc:"鼻にかかったような、つややかな音",     off: 0,  color:"#c4764a"},
+  {id:"clarinet", name:"クラリネット", fam:"木管楽器", famColor:"#4a7a3a", desc:"まるく、やわらかい音",                 off: 0,  color:"#6a5aa8"},
+  {id:"sax",      name:"サクソフォン", fam:"木管楽器", famColor:"#4a7a3a", desc:"息づかいのある、つやのある音",         off: 0,  color:"#b0922e"},
+  {id:"bassoon",  name:"ファゴット",   fam:"木管楽器", famColor:"#4a7a3a", desc:"低くて、ユーモラスにも聞こえる音",     off:-12, color:"#8a6a4a"},
+  {id:"trumpet",  name:"トランペット", fam:"金管楽器", famColor:"#a8762a", desc:"明るく、はなやかにひびく音",           off: 0,  color:"#d49a20"},
+  {id:"horn",     name:"ホルン",       fam:"金管楽器", famColor:"#a8762a", desc:"遠くで鳴るような、まろやかな音",       off:-12, color:"#a07840"},
+  {id:"trombone", name:"トロンボーン", fam:"金管楽器", famColor:"#a8762a", desc:"低く、どっしりした音",                 off:-12, color:"#7a6020"},
+  {id:"violin",   name:"ヴァイオリン", fam:"弦楽器",   famColor:"#a84a5a", desc:"弓でこする、歌うような音",             off: 12, color:"#b04a5a"},
+  {id:"celesta",  name:"チェレスタ",   fam:"鍵盤楽器", famColor:"#3a7a8a", desc:"鈴のような、きらきらした音",           off: 12, color:"#50a090"},
+  {id:"tutti",    name:"みんなで合奏", fam:"トゥッティ", famColor:"#c23a3a", desc:"終盤のように、いくつもの楽器を重ねて", off: 0,  color:"#c23a3a"},
+];
+const WORDS=["すんだ","こもった","まろやか","するどい","明るい","暗い","あたたかい","つめたい","軽い","重い","はなやか","ユーモラス","歌うような","遠くからひびくような"];
+const MB_VOLS=[0.35, 0.55, 0.78, 1.0];
+const MB_VOL_NAMES=["ppp","p","mf","f"];
+
+/* ========= 状態 ========= */
+let mode = "listen";                 // listen | mybolero | quiz
+let melodyId = "A";
+let instIdx = 0;
+let playing = false;
+let impressions = {};                // instId -> [wordIdx,...]
+let mbSlots = [
+  {mel:"A", inst:0},
+  {mel:"A", inst:2},
+  {mel:"B", inst:4},
+  {mel:"B", inst:5},
+];
+let quiz = {answer:-1, mel:"A", asked:0, correct:0, phase:"idle"};
+
+const $ = id => document.getElementById(id);
+function freqOf(midi){ return 440*Math.pow(2,(midi-69)/12); }
+function mbShort(){ return document.querySelector('input[name="mbLen"]:checked').value === "s"; }
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._tm);
+  toast._tm = setTimeout(()=>t.classList.remove("show"), 2400);
+}
+
+/* ========= モード切替 ========= */
+function setMode(m){
+  stopPlayback();
+  mode = m;
+  document.querySelectorAll("nav.modes button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.mode===m);
+  });
+  document.querySelectorAll("[data-show]").forEach(s=>{
+    s.classList.toggle("hidden", s.dataset.show!==m);
+  });
+  if(m==="listen") draw();
+  save();
+}
+document.querySelectorAll("nav.modes button").forEach(b=>{
+  b.addEventListener("click", ()=>setMode(b.dataset.mode));
+});
+
+/* ========= きく・くらべる UI ========= */
+function buildMelList(){
+  const box = $("melList");
+  box.innerHTML = "";
+  for(const key of ["A","B"]){
+    const m = MELODIES[key];
+    const b = document.createElement("button");
+    b.className = "mel-btn" + (key===melodyId ? " active" : "");
+    b.innerHTML = '<span class="m-name">'+m.name+'</span><span class="m-desc">'+m.desc+'</span>';
+    b.addEventListener("click", ()=>{
+      if(melodyId===key) return;
+      melodyId = key;
+      buildMelList(); save();
+      if(playing && mode==="listen") startListen(); else draw();
+    });
+    box.appendChild(b);
+  }
+}
+const instBtns = [];
+function buildInstList(){
+  const box = $("instList");
+  box.innerHTML = "";
+  instBtns.length = 0;
+  INSTRUMENTS.forEach((ins,i)=>{
+    const b = document.createElement("button");
+    b.className = "inst-btn";
+    b.style.setProperty("--i-color", ins.color);
+    b.style.setProperty("--i-soft", ins.color+"22");
+    b.innerHTML =
+      '<span class="i-fam" style="background:'+ins.famColor+'">'+ins.fam+'</span>' +
+      '<span class="i-name">'+ins.name+'</span>' +
+      '<span class="i-desc">'+ins.desc+'</span>';
+    b.addEventListener("click", ()=>setInst(i, true));
+    box.appendChild(b);
+    instBtns.push(b);
+  });
+  refreshInstUI();
+}
+function refreshInstUI(){
+  instBtns.forEach((b,i)=>b.classList.toggle("active", i===instIdx));
+  const c = INSTRUMENTS[instIdx].color;
+  document.documentElement.style.setProperty("--accent", c);
+  document.documentElement.style.setProperty("--accent-soft", c+"18");
+  renderChips();
+}
+function setInst(i, byUser){
+  instIdx = i;
+  refreshInstUI();
+  if(!playing && mode==="listen") draw();
+  if(byUser) save();
+}
+
+/* ========= 印象のことば ========= */
+const chipBtns = [];
+function buildChips(){
+  const box = $("impChips");
+  box.innerHTML = "";
+  chipBtns.length = 0;
+  WORDS.forEach((w,wi)=>{
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = w;
+    b.addEventListener("click", ()=>{
+      const id = INSTRUMENTS[instIdx].id;
+      const arr = impressions[id] || (impressions[id]=[]);
+      const k = arr.indexOf(wi);
+      if(k>=0) arr.splice(k,1); else arr.push(wi);
+      if(arr.length===0) delete impressions[id];
+      renderChips(); renderImpRecords(); save();
+    });
+    box.appendChild(b);
+    chipBtns.push(b);
+  });
+  renderChips();
+}
+function renderChips(){
+  if(chipBtns.length===0) return;
+  const arr = impressions[INSTRUMENTS[instIdx].id] || [];
+  chipBtns.forEach((b,wi)=>b.classList.toggle("on", arr.includes(wi)));
+}
+function renderImpRecords(){
+  const box = $("impRecords");
+  const parts = [];
+  for(const ins of INSTRUMENTS){
+    const arr = impressions[ins.id];
+    if(!arr || arr.length===0) continue;
+    parts.push('<span class="rec-name" style="color:'+ins.color+'">'+ins.name+'</span>：'+arr.map(wi=>WORDS[wi]).join("、"));
+  }
+  box.innerHTML = parts.length ? "📒 記録：<br>"+parts.join("<br>") : "（まだ記録がありません。楽器をならして、感じたことばをタップしよう）";
+}
+$("impClearBtn").addEventListener("click", ()=>{
+  delete impressions[INSTRUMENTS[instIdx].id];
+  renderChips(); renderImpRecords(); save();
+});
+
+/* ========= マイ・ボレロ UI ========= */
+const mbSlotEls = [];
+function buildMbSlots(){
+  const box = $("mbSlots");
+  box.innerHTML = "";
+  mbSlotEls.length = 0;
+  mbSlots.forEach((slot,k)=>{
+    const d = document.createElement("div");
+    d.className = "mb-slot";
+    d.innerHTML = '<div class="s-title">第'+(k+1)+'変奏<span class="s-vol">音量 '+MB_VOL_NAMES[k]+'</span></div>';
+    const melRow = document.createElement("div");
+    melRow.className = "mb-mel";
+    for(const key of ["A","B"]){
+      const b = document.createElement("button");
+      b.textContent = "旋律"+key;
+      b.classList.toggle("on", slot.mel===key);
+      b.addEventListener("click", ()=>{
+        slot.mel = key;
+        melRow.querySelectorAll("button").forEach(x=>x.classList.toggle("on", x.textContent==="旋律"+key));
+        save();
+      });
+      melRow.appendChild(b);
+    }
+    d.appendChild(melRow);
+    const sel = document.createElement("select");
+    INSTRUMENTS.forEach((ins,i)=>{
+      const o = document.createElement("option");
+      o.value = i; o.textContent = ins.name + "（"+ins.fam+"）";
+      sel.appendChild(o);
+    });
+    sel.value = slot.inst;
+    sel.addEventListener("change", ()=>{ slot.inst = Number(sel.value); save(); });
+    d.appendChild(sel);
+    box.appendChild(d);
+    mbSlotEls.push(d);
+  });
+}
+function highlightMbSlot(k){
+  mbSlotEls.forEach((el,i)=>el.classList.toggle("now", i===k));
+}
+
+/* ========= 音色あてクイズ UI ========= */
+const quizBtns = [];
+function buildQuizGrid(){
+  const box = $("quizGrid");
+  box.innerHTML = "";
+  quizBtns.length = 0;
+  INSTRUMENTS.forEach((ins,i)=>{
+    if(ins.id==="tutti") return;
+    const b = document.createElement("button");
+    b.textContent = ins.name;
+    b.disabled = true;
+    b.addEventListener("click", ()=>quizAnswer(i, b));
+    box.appendChild(b);
+    quizBtns.push({btn:b, idx:i});
+  });
+}
+function quizUpdateScore(){
+  $("quizScore").textContent = "正解 "+quiz.correct+" / "+quiz.asked+"問";
+}
+function quizNew(){
+  quiz.answer = Math.floor(Math.random()*10);   // tutti(10)は出題しない
+  quiz.mel = Math.random()<0.5 ? "A" : "B";
+  quiz.phase = "listening";
+  $("quizMsg").textContent = "🎵 演奏中… どの楽器かな？";
+  $("quizMsg").className = "quiz-msg";
+  $("quizReplayBtn").disabled = false;
+  $("quizStartBtn").textContent = "▶ 問題を出す";
+  quizBtns.forEach(q=>{ q.btn.disabled = false; q.btn.classList.remove("correct","wrong"); });
+  startQuizPlay();
+}
+function quizAnswer(i, btn){
+  if(quiz.phase!=="listening") return;
+  quiz.phase = "answered";
+  stopPlayback();
+  quiz.asked++;
+  const ok = (i===quiz.answer);
+  if(ok) quiz.correct++;
+  quizBtns.forEach(q=>{
+    q.btn.disabled = true;
+    if(q.idx===quiz.answer) q.btn.classList.add("correct");
+  });
+  if(!ok) btn.classList.add("wrong");
+  $("quizMsg").textContent = ok
+    ? "⭕ 正解！ "+INSTRUMENTS[quiz.answer].name+" でした"
+    : "❌ ざんねん… 正解は "+INSTRUMENTS[quiz.answer].name+" でした";
+  $("quizMsg").className = "quiz-msg " + (ok?"good":"bad");
+  $("quizStartBtn").textContent = "▶ 次の問題";
+  quizUpdateScore();
+}
+$("quizStartBtn").addEventListener("click", quizNew);
+$("quizReplayBtn").addEventListener("click", ()=>{ if(quiz.answer>=0) startQuizPlay(); });
+$("quizResetBtn").addEventListener("click", ()=>{
+  quiz = {answer:-1, mel:"A", asked:0, correct:0, phase:"idle"};
+  quizUpdateScore();
+  $("quizMsg").textContent = "「問題を出す」をおすと、どれかの楽器が旋律を演奏します。";
+  $("quizMsg").className = "quiz-msg";
+  $("quizReplayBtn").disabled = true;
+  $("quizStartBtn").textContent = "▶ 問題を出す";
+  quizBtns.forEach(q=>{ q.btn.disabled = true; q.btn.classList.remove("correct","wrong"); });
+});
+
+/* ========= 音（Web Audio） ========= */
+let actx=null, master=null, noiseBuf=null, WAVES=null;
+let activeSources=[];
+const pluckCache=new Map();
+function ensureAudio(){
+  if(actx){ if(actx.state==="suspended") actx.resume(); return; }
+  actx = new (window.AudioContext||window.webkitAudioContext)();
+  const comp = actx.createDynamicsCompressor();
+  master = actx.createGain();
+  master.gain.value = 0.75;
+  master.connect(comp); comp.connect(actx.destination);
+}
+function getNoise(){
+  if(noiseBuf) return noiseBuf;
+  const sr=actx.sampleRate;
+  noiseBuf = actx.createBuffer(1,sr,sr);
+  const d = noiseBuf.getChannelData(0);
+  for(let i=0;i<sr;i++) d[i]=Math.random()*2-1;
+  return noiseBuf;
+}
+function getWaves(){
+  if(WAVES) return WAVES;
+  const pw = amps=>{
+    const re=new Float32Array(amps.length+1), im=new Float32Array(amps.length+1);
+    amps.forEach((a,i)=>im[i+1]=a);
+    return actx.createPeriodicWave(re,im);
+  };
+  WAVES = {
+    oboe:     pw([1,0.85,1.1,0.6,0.5,0.35,0.2,0.1]),
+    clarinet: pw([1,0.05,0.6,0.04,0.4,0.03,0.25,0.02,0.12]),
+    horn:     pw([1,0.45,0.2,0.08,0.04]),
+  };
+  return WAVES;
+}
+function mkOsc(type, freq, t, stopAt, wave){
+  const o = actx.createOscillator();
+  if(wave) o.setPeriodicWave(wave); else o.type=type;
+  o.frequency.value = freq;
+  o.start(t); o.stop(stopAt);
+  activeSources.push(o);
+  return o;
+}
+function mkEnv(t, dur, atk, rel, peak){
+  const g = actx.createGain();
+  const tEnd = t + Math.max(dur-0.03, atk+0.02);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(peak, t+atk);
+  g.gain.linearRampToValueAtTime(peak*0.8, tEnd);
+  g.gain.linearRampToValueAtTime(0.0001, tEnd+rel);
+  return {g, stopAt:tEnd+rel+0.05};
+}
+function mkVibrato(oscNode, freq, t, stopAt, rate, depth, delay){
+  const lfo = actx.createOscillator();
+  lfo.frequency.value = rate;
+  const vg = actx.createGain();
+  vg.gain.setValueAtTime(0, t);
+  vg.gain.setValueAtTime(0, t+delay);
+  vg.gain.linearRampToValueAtTime(freq*depth, t+delay+0.25);
+  lfo.connect(vg); vg.connect(oscNode.frequency);
+  lfo.start(t); lfo.stop(stopAt);
+  activeSources.push(lfo);
+}
+function mkFilter(type, freq, q){
+  const f = actx.createBiquadFilter();
+  f.type=type; f.frequency.value=freq; if(q) f.Q.value=q;
+  return f;
+}
+function mkNoiseSrc(t, stopAt){
+  const s = actx.createBufferSource();
+  s.buffer = getNoise(); s.loop = true;
+  s.start(t); s.stop(stopAt);
+  activeSources.push(s);
+  return s;
+}
+function playInst(id, midi, t, dur, vol){
+  vol = (vol===undefined)?1:vol;
+  const f = freqOf(midi);
+  if(id==="tutti"){
+    playInst("violin",   midi+12, t, dur, 0.7*vol);
+    playInst("trumpet",  midi,    t, dur, 0.65*vol);
+    playInst("trombone", midi-12, t, dur, 0.7*vol);
+    playInst("flute",    midi+12, t, dur, 0.5*vol);
+    return;
+  }
+  if(id==="celesta"){
+    const g = actx.createGain();
+    g.gain.setValueAtTime(0.45*vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+1.1);
+    const o1 = mkOsc("sine", f, t, t+1.15);
+    const g2 = actx.createGain();
+    g2.gain.setValueAtTime(0.3, t);
+    g2.gain.exponentialRampToValueAtTime(0.001, t+0.35);
+    const o2 = mkOsc("sine", f*4, t, t+1.15);
+    o1.connect(g); o2.connect(g2); g2.connect(g);
+    g.connect(master);
+    return;
+  }
+  let env, chainOut;
+  switch(id){
+    case "flute": {
+      env = mkEnv(t, dur, 0.07, 0.15, 0.5*vol);
+      const o1 = mkOsc("sine", f, t, env.stopAt);
+      const o2 = mkOsc("sine", f*2, t, env.stopAt);
+      const g2 = actx.createGain(); g2.gain.value = 0.18;
+      o1.connect(env.g); o2.connect(g2); g2.connect(env.g);
+      if(dur>0.32) mkVibrato(o1, f, t, env.stopAt, 5, 0.007, 0.25);
+      const ns = mkNoiseSrc(t, env.stopAt);
+      const bp = mkFilter("bandpass", Math.min(f*2.5, 9000), 9);
+      const ng = actx.createGain(); ng.gain.value = 0.05;
+      ns.connect(bp); bp.connect(ng); ng.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    case "oboe": {
+      env = mkEnv(t, dur, 0.05, 0.1, 0.42*vol);
+      const o = mkOsc(null, f, t, env.stopAt, getWaves().oboe);
+      const bp = mkFilter("bandpass", 1400, 0.7);
+      o.connect(bp); bp.connect(env.g);
+      if(dur>0.35) mkVibrato(o, f, t, env.stopAt, 5.2, 0.005, 0.25);
+      chainOut = env.g;
+      break;
+    }
+    case "clarinet": {
+      env = mkEnv(t, dur, 0.06, 0.12, 0.5*vol);
+      const o = mkOsc(null, f, t, env.stopAt, getWaves().clarinet);
+      const lp = mkFilter("lowpass", 2800, 0.5);
+      o.connect(lp); lp.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    case "sax": {
+      env = mkEnv(t, dur, 0.05, 0.1, 0.55*vol);
+      const o = mkOsc("sawtooth", f, t, env.stopAt);
+      const bp = mkFilter("bandpass", 900, 0.7);
+      const lp = mkFilter("lowpass", 2600, 0.5);
+      o.connect(bp); bp.connect(lp); lp.connect(env.g);
+      if(dur>0.3) mkVibrato(o, f, t, env.stopAt, 5.5, 0.007, 0.2);
+      chainOut = env.g;
+      break;
+    }
+    case "bassoon": {
+      env = mkEnv(t, dur, 0.06, 0.12, 0.85*vol);
+      const o = mkOsc("sawtooth", f, t, env.stopAt);
+      const lp = mkFilter("lowpass", 700, 3);
+      o.connect(lp); lp.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    case "trumpet": {
+      env = mkEnv(t, dur, 0.03, 0.08, 0.4*vol);
+      const o = mkOsc("sawtooth", f, t, env.stopAt);
+      const lp = mkFilter("lowpass", 600, 1);
+      lp.frequency.setValueAtTime(600, t);
+      lp.frequency.linearRampToValueAtTime(3200, t+0.06);
+      o.connect(lp); lp.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    case "horn": {
+      env = mkEnv(t, dur, 0.1, 0.2, 0.62*vol);
+      const o = mkOsc(null, f, t, env.stopAt, getWaves().horn);
+      const lp = mkFilter("lowpass", 800, 0.5);
+      o.connect(lp); lp.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    case "trombone": {
+      env = mkEnv(t, dur, 0.07, 0.12, 0.55*vol);
+      const o = mkOsc("sawtooth", f, t, env.stopAt);
+      const lp = mkFilter("lowpass", 1400, 0.6);
+      o.connect(lp); lp.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    case "violin": {
+      env = mkEnv(t, dur, 0.12, 0.15, 0.45*vol);
+      const o = mkOsc("sawtooth", f, t, env.stopAt);
+      const lp = mkFilter("lowpass", 4200, 0.4);
+      o.connect(lp); lp.connect(env.g);
+      if(dur>0.28) mkVibrato(o, f, t, env.stopAt, 5.5, 0.009, 0.18);
+      const ns = mkNoiseSrc(t, env.stopAt);
+      const bp = mkFilter("bandpass", 2500, 0.5);
+      const ng = actx.createGain(); ng.gain.value = 0.012;
+      ns.connect(bp); bp.connect(ng); ng.connect(env.g);
+      chainOut = env.g;
+      break;
+    }
+    default: return;
+  }
+  chainOut.connect(master);
+}
+function playSnare(t, accent, vol){
+  vol = (vol===undefined)?1:vol;
+  const ns = mkNoiseSrc(t, t+0.09);
+  const bp = mkFilter("bandpass", 1900, 1);
+  const g = actx.createGain();
+  g.gain.setValueAtTime((accent?0.35:0.2)*vol, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+0.06);
+  ns.connect(bp); bp.connect(g); g.connect(master);
+  const o = mkOsc("triangle", 185, t, t+0.05);
+  const g2 = actx.createGain();
+  g2.gain.setValueAtTime(0.12*vol, t);
+  g2.gain.exponentialRampToValueAtTime(0.001, t+0.04);
+  o.connect(g2); g2.connect(master);
+}
+function pluckBuffer(freq){
+  const key = Math.round(freq*10);
+  if(pluckCache.has(key)) return pluckCache.get(key);
+  const sr = actx.sampleRate;
+  const N = Math.max(2, Math.round(sr/freq));
+  const len = Math.floor(sr*1.2);
+  const buf = actx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<N;i++) d[i]=Math.random()*2-1;
+  for(let i=N;i<len;i++) d[i]=0.497*(d[i-N]+d[i-N+1]);
+  pluckCache.set(key, buf);
+  return buf;
+}
+function playBass(midi, t, vol){
+  vol = (vol===undefined)?1:vol;
+  const src = actx.createBufferSource();
+  src.buffer = pluckBuffer(freqOf(midi));
+  const g = actx.createGain(); g.gain.value = 0.55*vol;
+  src.connect(g); g.connect(master);
+  src.start(t);
+  activeSources.push(src);
+}
+
+/* ========= イベント生成 ========= */
+function addRhythm(evs, total, volFn){
+  const cycles = Math.ceil(total/72);
+  for(let c=0;c<cycles;c++){
+    SNARE1.forEach(([o,a])=>{ const u=c*72+o;    if(u<total) evs.push({u, type:"snare", a, vol:volFn(u)}); });
+    SNARE2.forEach(([o,a])=>{ const u=c*72+36+o; if(u<total) evs.push({u, type:"snare", a, vol:volFn(u)}); });
+  }
+  const bars = Math.ceil(total/BAR);
+  for(let b=0;b<bars;b++){
+    for(const [off,m] of [[0,36],[12,43],[24,43]]){
+      const u=b*BAR+off;
+      if(u<total) evs.push({u, type:"bass", m, vol:volFn(u)});
+    }
+  }
+}
+function buildListenEvents(){
+  const evs=[];
+  for(const [u,d,m] of MELODIES[melodyId].data) evs.push({u, type:"mel", d, m});
+  addRhythm(evs, LOOP_UNITS, ()=>1);
+  evs.sort((a,b)=>a.u-b.u);
+  evs.push({u:LOOP_UNITS, type:"end"});
+  return {events:evs, total:LOOP_UNITS};
+}
+function buildMbEvents(){
+  const seg = mbShort() ? 8*BAR : LOOP_UNITS;
+  const cut = mbShort() ? 8*BAR : 16*BAR+12;
+  const total = seg*4;
+  const evs=[];
+  mbSlots.forEach((slot,k)=>{
+    const ins = INSTRUMENTS[slot.inst];
+    for(const [u,d,m] of MELODIES[slot.mel].data){
+      if(u>=cut) continue;
+      evs.push({u:k*seg+u, type:"mel", d, m, inst:slot.inst, vol:MB_VOLS[k]});
+    }
+  });
+  addRhythm(evs, total, u=>MB_VOLS[Math.min(3, Math.floor(u/seg))]);
+  evs.sort((a,b)=>a.u-b.u);
+  evs.push({u:total, type:"end"});
+  return {events:evs, total, seg};
+}
+function buildQuizEvents(){
+  const cut = 4*BAR;
+  const evs=[];
+  for(const [u,d,m] of MELODIES[quiz.mel].data){
+    if(u>=cut) continue;
+    evs.push({u, type:"mel", d, m, inst:quiz.answer});
+  }
+  evs.sort((a,b)=>a.u-b.u);
+  evs.push({u:cut+18, type:"end"});
+  return {events:evs, total:cut+18};
+}
+
+/* ========= スケジューラ ========= */
+let playCtx=null, evIdx=0, anchorU=0, anchorT=0, timer=null, rafId=null;
+let dynFactor=1;
+function unitSec(){ return 60/Number($("tempo").value)/12; }
+function dynName(){
+  if(dynFactor<0.4) return "ppp";
+  if(dynFactor<0.5) return "pp";
+  if(dynFactor<0.6) return "p";
+  if(dynFactor<0.72) return "mp";
+  if(dynFactor<0.84) return "mf";
+  if(dynFactor<0.95) return "f";
+  if(dynFactor<1)    return "ff";
+  return "fff";
+}
+function dispatch(ev, t){
+  if(ev.type==="mel"){
+    const idx = (ev.inst!==undefined) ? ev.inst : instIdx;
+    const ins = INSTRUMENTS[idx];
+    const off = (ins.id==="tutti") ? 0 : ins.off;
+    playInst(ins.id, ev.m+off, t, ev.d*unitSec(), (ev.vol||1)*dynFactor);
+  }else if(ev.type==="snare"){
+    if($("snareChk").checked || playCtx.mode!=="listen")
+      playSnare(t, ev.a===1, (ev.vol||1)*dynFactor);
+  }else if(ev.type==="bass"){
+    if($("bassChk").checked || playCtx.mode!=="listen")
+      playBass(ev.m, t, (ev.vol||1)*dynFactor);
+  }
+}
+function tick(){
+  if(!playing) return;
+  const horizon = actx.currentTime + 0.18;
+  let guard = 0;
+  while(playing && guard++ < 800){
+    const ev = playCtx.events[evIdx];
+    const t = anchorT + (ev.u - anchorU)*unitSec();
+    if(t > horizon) break;
+    if(ev.type==="end"){
+      const doLoop = (playCtx.mode==="listen") && $("loopChk").checked;
+      if(doLoop){
+        anchorT = t; anchorU = 0; evIdx = 0;
+        dynFactor = $("crescChk").checked ? Math.min(1, dynFactor+0.09) : 1;
+        if($("relayChk").checked) relayNext();
+      }else{
+        playing = false;
+        clearInterval(timer);
+        setTimeout(stopUI, Math.max(0,(t-actx.currentTime)*1000)+500);
+        break;
+      }
+    }else{
+      dispatch(ev, t);
+      anchorT = t; anchorU = ev.u;
+      evIdx++;
+    }
+  }
+  if(activeSources.length > 600) activeSources.splice(0, 300);
+}
+function relayNext(){
+  setInst((instIdx+1) % INSTRUMENTS.length, false);
+  const b = instBtns[instIdx];
+  b.classList.add("relay-flash");
+  setTimeout(()=>b.classList.remove("relay-flash"), 800);
+  b.scrollIntoView({block:"nearest", behavior:"smooth"});
+}
+function startPlayback(ctx){
+  ensureAudio();
+  haltSound();
+  playCtx = ctx;
+  evIdx = 0; anchorU = 0;
+  anchorT = actx.currentTime + 0.12;
+  dynFactor = (ctx.mode==="listen" && $("crescChk").checked) ? 0.35 : 1;
+  playing = true;
+  updPlayButtons();
+  timer = setInterval(tick, 30);
+  tick();
+  cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(animLoop);
+}
+function startListen(){ startPlayback(Object.assign(buildListenEvents(), {mode:"listen"})); }
+function startMb(){ startPlayback(Object.assign(buildMbEvents(), {mode:"mybolero"})); }
+function startQuizPlay(){ startPlayback(Object.assign(buildQuizEvents(), {mode:"quiz"})); }
+function haltSound(){
+  clearInterval(timer);
+  activeSources.forEach(s=>{ try{ s.stop(); }catch(e){} });
+  activeSources = [];
+}
+function updPlayButtons(){
+  $("playBtn").textContent   = (playing && playCtx && playCtx.mode==="listen")   ? "■ 止める" : "▶ 再生";
+  $("mbPlayBtn").textContent = (playing && playCtx && playCtx.mode==="mybolero") ? "■ 止める" : "▶ とおして再生";
+}
+function stopUI(){
+  playing = false;
+  updPlayButtons();
+  cancelAnimationFrame(rafId);
+  highlightMbSlot(-1);
+  if(mode==="listen") draw();
+}
+function stopPlayback(){
+  playing = false;
+  haltSound();
+  stopUI();
+}
+function playPosUnit(){
+  if(!playing || !playCtx) return -1;
+  const u = anchorU + (actx.currentTime - anchorT)/unitSec();
+  return Math.max(0, Math.min(playCtx.total, u));
+}
+function animLoop(){
+  if(playing && playCtx){
+    if(playCtx.mode==="listen") draw();
+    else if(playCtx.mode==="mybolero"){
+      const pos = playPosUnit();
+      highlightMbSlot(Math.min(3, Math.floor(pos/playCtx.seg)));
+    }
+  }
+  if(playing) rafId = requestAnimationFrame(animLoop);
+}
+
+/* ========= 描画（きく・くらべる） ========= */
+const PITCH_LO = 34, PITCH_HI = 100;
+function draw(){
+  const cv = $("score"), ctx = cv.getContext("2d");
+  const W = cv.width, H = cv.height;
+  const ins = INSTRUMENTS[instIdx];
+  const off = (ins.id==="tutti") ? 0 : ins.off;
+  const x0 = 46, x1 = W-10, y0 = 26, y1 = H-14;
+  const ux = u => x0 + (x1-x0)*u/LOOP_UNITS;
+  const py = m => y1 - (y1-y0)*(m-PITCH_LO)/(PITCH_HI-PITCH_LO);
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = "#fdfcf8";
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = "#f0ece0";
+  ctx.fillRect(ux(16*BAR), y0, ux(LOOP_UNITS)-ux(16*BAR), y1-y0);
+  ctx.fillStyle = "#a8a092";
+  ctx.font = "11px sans-serif";
+  ctx.fillText("リズムだけ", ux(16*BAR)+8, y0+14);
+  ctx.textAlign = "right";
+  for(const m of [36,48,60,72,84,96]){
+    const y = py(m);
+    ctx.strokeStyle = "#e8e2d2";
+    ctx.beginPath(); ctx.moveTo(x0,y); ctx.lineTo(x1,y); ctx.stroke();
+    ctx.fillStyle = "#b0a896";
+    ctx.fillText("ド", x0-6, y+4);
+  }
+  ctx.textAlign = "left";
+  for(let b=0;b<=18;b++){
+    const x = ux(b*BAR);
+    ctx.strokeStyle = (b%4===0) ? "#c8c0ac" : "#e8e2d2";
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    if(b<16 && b%4===0){
+      ctx.fillStyle = "#a8a092";
+      ctx.fillText((b+1)+"小節目", x+4, y0-8);
+    }
+  }
+  const pos = playPosUnit();
+  const noteH = 7;
+  for(const [u,d,m] of MELODIES[melodyId].data){
+    const x = ux(u), w = Math.max(3, ux(u+d)-x-1.5);
+    const y = py(m+off) - noteH/2;
+    const now = pos>=u && pos<u+d;
+    ctx.fillStyle = now ? "#222" : ins.color;
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x, y, w, noteH, 3); else ctx.rect(x, y, w, noteH);
+    ctx.fill();
+  }
+  if(pos>=0 && playCtx && playCtx.mode==="listen"){
+    const x = ux(pos);
+    ctx.strokeStyle = "rgba(220,120,20,.7)";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x,y0); ctx.lineTo(x,y1); ctx.stroke();
+    ctx.lineWidth = 1;
+  }
+  ctx.fillStyle = ins.color;
+  ctx.font = "bold 14px sans-serif";
+  let label = MELODIES[melodyId].name + " × " + ins.name;
+  if(playing && playCtx && playCtx.mode==="listen" && $("crescChk").checked){
+    label += "　🔊 " + dynName();
+  }
+  ctx.fillText(label, x0+4, 16);
+}
+
+/* ========= 保存・共有 ========= */
+const LS_KEY = "bolero-lab-v2";
+function impEncode(){
+  const parts = [];
+  INSTRUMENTS.forEach((ins,i)=>{
+    const arr = impressions[ins.id];
+    if(arr && arr.length) parts.push(i+":"+arr.join(","));
+  });
+  return parts.join(";");
+}
+function impDecode(s){
+  const out = {};
+  if(!s) return out;
+  for(const part of s.split(";")){
+    const [i, ws] = part.split(":");
+    const ins = INSTRUMENTS[Number(i)];
+    if(!ins || !ws) continue;
+    const arr = ws.split(",").map(Number).filter(w=>w>=0 && w<WORDS.length);
+    if(arr.length) out[ins.id] = arr;
+  }
+  return out;
+}
+function mbEncode(){
+  return mbSlots.map(s=>s.mel + s.inst.toString(16)).join("");
+}
+function mbDecode(s){
+  if(typeof s!=="string" || s.length!==8) return null;
+  const out = [];
+  for(let k=0;k<4;k++){
+    const mel = s[k*2], inst = parseInt(s[k*2+1], 16);
+    if((mel!=="A"&&mel!=="B") || !(inst>=0 && inst<INSTRUMENTS.length)) return null;
+    out.push({mel, inst});
+  }
+  return out;
+}
+function save(){
+  const st = {
+    mode, mel:melodyId, inst:instIdx, t:Number($("tempo").value),
+    sn:$("snareChk").checked, ba:$("bassChk").checked,
+    lp:$("loopChk").checked, rl:$("relayChk").checked, cr:$("crescChk").checked,
+    name:$("userName").value,
+    imp:impEncode(),
+    mb:mbEncode(), mbLen:mbShort()?"s":"f", rs:$("mbReason").value
+  };
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(st)); }catch(e){}
+}
+function applyState(st){
+  if(!st) return;
+  if(st.mel==="A"||st.mel==="B") melodyId = st.mel;
+  if(st.inst>=0 && st.inst<INSTRUMENTS.length) instIdx = Number(st.inst);
+  if(st.t>=56 && st.t<=96){ $("tempo").value = st.t; $("tempoVal").textContent = st.t; }
+  if(st.sn!==undefined) $("snareChk").checked = st.sn!==false && st.sn!=="0";
+  if(st.ba!==undefined) $("bassChk").checked  = st.ba!==false && st.ba!=="0";
+  if(st.lp!==undefined) $("loopChk").checked  = st.lp!==false && st.lp!=="0";
+  $("relayChk").checked = st.rl===true || st.rl==="1";
+  $("crescChk").checked = st.cr===true || st.cr==="1";
+  if(st.name) $("userName").value = st.name;
+  if(st.imp) impressions = impDecode(st.imp);
+  const mb = mbDecode(st.mb);
+  if(mb) mbSlots = mb;
+  if(st.mbLen==="f") document.querySelector('input[name="mbLen"][value="f"]').checked = true;
+  if(st.rs) $("mbReason").value = st.rs;
+}
+function load(){
+  const h = location.hash;
+  if(h.includes("mb=") || h.includes("imp=")){
+    const p = new URLSearchParams(h.slice(1));
+    applyState({
+      mel:p.get("mel"), inst:Number(p.get("inst")||0), t:Number(p.get("t")||72),
+      name:decodeURIComponent(p.get("n")||""),
+      imp:p.get("imp")||"", mb:p.get("mb")||"", mbLen:p.get("len")||"s",
+      rs:decodeURIComponent(p.get("rs")||"")
+    });
+    return (p.get("mode")==="m") ? "mybolero" : "listen";
+  }
+  let st=null;
+  try{ st = JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
+  applyState(st);
+  return (st && st.mode && st.mode!=="quiz") ? st.mode : "listen";
+}
+function copyMbLink(){
+  save();
+  const h = "#mode=m&n="+encodeURIComponent($("userName").value)
+    + "&mb="+mbEncode()+"&len="+(mbShort()?"s":"f")
+    + "&rs="+encodeURIComponent($("mbReason").value)
+    + "&imp="+impEncode();
+  const url = location.href.split("#")[0] + h;
+  const done = ()=>toast("リンクをコピーしました。先生に送って提出しよう");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(()=>prompt("このリンクをコピーしてください", url));
+  }else{
+    prompt("このリンクをコピーしてください", url);
+  }
+}
+
+/* ========= 提出シート（PNG） ========= */
+function wrapText(ctx, text, maxW){
+  const lines = [];
+  for(const raw of text.split("\n")){
+    let line = "";
+    for(const ch of raw){
+      if(ctx.measureText(line+ch).width > maxW){ lines.push(line); line = ch; }
+      else line += ch;
+    }
+    lines.push(line);
+  }
+  return lines;
+}
+function exportSheet(){
+  const W = 1000, S = 2, pad = 36;
+  const cv = document.createElement("canvas");
+  const ctx = cv.getContext("2d");
+  // 1パス目: 高さを計算するために行を組み立てる
+  ctx.font = "15px sans-serif";
+  const rows = [];   // {text, font, color, gap}
+  const name = $("userName").value || "（名前なし）";
+  const today = new Date();
+  const dateStr = today.getFullYear()+"年"+(today.getMonth()+1)+"月"+today.getDate()+"日";
+  rows.push({text:"ボレロ・オーケストラ実験室　提出シート", font:"bold 24px sans-serif", color:"#2b2a28", gap:34});
+  rows.push({text:"名前："+name+"　　　日付："+dateStr, font:"15px sans-serif", color:"#444", gap:40});
+  rows.push({text:"■ マイ・ボレロ（自分の楽器リレー設計）", font:"bold 18px sans-serif", color:"#7a5a10", gap:30});
+  mbSlots.forEach((slot,k)=>{
+    rows.push({text:"第"+(k+1)+"変奏（"+MB_VOL_NAMES[k]+"）： 旋律"+slot.mel+" × "+INSTRUMENTS[slot.inst].name,
+      font:"15px sans-serif", color:"#2b2a28", gap:26});
+  });
+  rows.push({text:"理由：", font:"bold 15px sans-serif", color:"#2b2a28", gap:24});
+  const reason = $("mbReason").value || "（未記入）";
+  ctx.font = "15px sans-serif";
+  for(const l of wrapText(ctx, reason, W-pad*2-20)){
+    rows.push({text:"　"+l, font:"15px sans-serif", color:"#2b2a28", gap:24});
+  }
+  rows.push({text:"", font:"15px sans-serif", color:"#000", gap:14});
+  rows.push({text:"■ 楽器の音色と印象（きく・くらべるの記録）", font:"bold 18px sans-serif", color:"#7a5a10", gap:30});
+  let impCount = 0;
+  for(const ins of INSTRUMENTS){
+    const arr = impressions[ins.id];
+    if(!arr || arr.length===0) continue;
+    impCount++;
+    rows.push({text:ins.name+"："+arr.map(wi=>WORDS[wi]).join("、"), font:"15px sans-serif", color:ins.color, gap:26});
+  }
+  if(impCount===0) rows.push({text:"（記録なし）", font:"15px sans-serif", color:"#888", gap:26});
+  const H = rows.reduce((a,r)=>a+r.gap, 0) + pad*2 + 20;
+  cv.width = W*S; cv.height = H*S;
+  const c = cv.getContext("2d");
+  c.scale(S,S);
+  c.fillStyle = "#faf6ee";
+  c.fillRect(0,0,W,H);
+  c.strokeStyle = "#c9a447";
+  c.lineWidth = 3;
+  c.strokeRect(8,8,W-16,H-16);
+  let y = pad + 10;
+  for(const r of rows){
+    c.font = r.font;
+    c.fillStyle = r.color;
+    c.fillText(r.text, pad, y);
+    y += r.gap;
+  }
+  const a = document.createElement("a");
+  a.download = "ボレロ提出シート_" + name + ".png";
+  a.href = cv.toDataURL("image/png");
+  a.click();
+  toast("提出シートを保存しました");
+}
+
+/* ========= イベント ========= */
+$("playBtn").addEventListener("click", ()=>{
+  (playing && playCtx && playCtx.mode==="listen") ? stopPlayback() : startListen();
+});
+$("mbPlayBtn").addEventListener("click", ()=>{
+  (playing && playCtx && playCtx.mode==="mybolero") ? stopPlayback() : startMb();
+});
+$("tempo").addEventListener("input", ()=>{ $("tempoVal").textContent = $("tempo").value; });
+$("tempo").addEventListener("change", save);
+$("userName").addEventListener("change", save);
+$("mbReason").addEventListener("change", save);
+["snareChk","bassChk","loopChk","relayChk","crescChk"].forEach(id=>$(id).addEventListener("change", save));
+document.querySelectorAll('input[name="mbLen"]').forEach(r=>r.addEventListener("change", save));
+$("mbCopyBtn").addEventListener("click", copyMbLink);
+$("sheetBtn1").addEventListener("click", exportSheet);
+$("sheetBtn2").addEventListener("click", exportSheet);
+document.addEventListener("keydown", e=>{
+  if(e.code==="Space" && e.target.tagName!=="INPUT" && e.target.tagName!=="TEXTAREA" && e.target.tagName!=="SELECT"){
+    e.preventDefault();
+    if(playing){ stopPlayback(); }
+    else if(mode==="listen"){ startListen(); }
+    else if(mode==="mybolero"){ startMb(); }
+  }
+});
+
+/* ========= 起動 ========= */
+const startMode = load();
+buildMelList();
+buildInstList();
+buildChips();
+buildMbSlots();
+buildQuizGrid();
+renderImpRecords();
+quizUpdateScore();
+setMode(startMode);
+draw();
+</script>
+</body>
+</html>

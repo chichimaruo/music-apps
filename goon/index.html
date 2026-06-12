@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>五音音階クリエイター 〜日本の音階で旋律づくり〜</title>
+<style>
+  :root{
+    --accent:#3a5ba0;
+    --accent-soft:#3a5ba018;
+    --ink:#2b2a28;
+    --paper:#faf6ee;
+    --card:#ffffff;
+    --line:#d8d2c4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; padding:0 12px 40px;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  }
+  header{
+    max-width:1060px; margin:0 auto; padding:18px 4px 10px;
+    display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 16px;
+  }
+  h1{font-size:22px; margin:0; letter-spacing:.04em;}
+  h1 .sub{font-size:13px; font-weight:normal; color:#6b675e; margin-left:8px;}
+  .name-box{margin-left:auto; display:flex; align-items:center; gap:6px; font-size:14px;}
+  .name-box input{
+    font-size:15px; padding:6px 10px; border:1px solid var(--line);
+    border-radius:8px; background:#fff; width:180px;
+  }
+  main{max-width:1060px; margin:0 auto; display:flex; flex-direction:column; gap:14px;}
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:14px 16px;
+    box-shadow:0 1px 4px rgba(0,0,0,.05);
+  }
+  .card h2{
+    font-size:14px; margin:0 0 10px; color:#6b675e; letter-spacing:.08em;
+  }
+  /* --- 音階えらび --- */
+  .scales{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;}
+  .scale-btn{
+    position:relative; text-align:left; cursor:pointer;
+    border:2px solid var(--line); border-radius:12px;
+    background:#fff; padding:10px 12px;
+    font-family:inherit; font-size:15px;
+    transition:border-color .15s, background .15s;
+  }
+  .scale-btn .s-name{font-weight:bold; font-size:16px;}
+  .scale-btn .s-desc{display:block; font-size:12px; color:#6b675e; margin-top:3px;}
+  .scale-btn .s-notes{display:block; font-size:12px; margin-top:5px; letter-spacing:.1em; color:#444;}
+  .scale-btn.active{border-color:var(--accent); background:var(--accent-soft);}
+  .scale-btn .listen{
+    position:absolute; top:8px; right:8px;
+    border:1px solid var(--line); border-radius:8px; background:#fff;
+    font-size:12px; padding:4px 8px; cursor:pointer; font-family:inherit;
+  }
+  .scale-btn .listen:active{background:#eee;}
+  /* --- グリッド --- */
+  .grid-wrap{overflow-x:auto; padding-bottom:6px;}
+  .grid{
+    display:grid; user-select:none;
+    grid-template-columns:74px repeat(32, minmax(26px,1fr));
+    min-width:920px;
+  }
+  .beat-label{
+    font-size:11px; color:#8a857a; text-align:left; padding:0 0 4px 3px;
+    border-left:1px solid transparent;
+  }
+  .beat-label.bar-start{font-weight:bold; color:#555;}
+  .row-label{
+    font-size:13px; padding:0 8px 0 2px; display:flex; align-items:center; justify-content:flex-end;
+    color:#555; white-space:nowrap;
+  }
+  .row-label.tonic{color:var(--accent); font-weight:bold;}
+  .cell{
+    height:36px; border-top:1px solid #eee8da; border-left:1px solid #eee8da;
+    background:#fff; cursor:pointer; position:relative;
+  }
+  .cell.beat-line{border-left:1px solid #d9d2c0;}
+  .cell.bar-line{border-left:2px solid #a89f8a;}
+  .cell.row-tonic{background:var(--accent-soft);}
+  .cell.row-bottom{border-bottom:1px solid #eee8da;}
+  .cell.n-on{background:var(--accent);}
+  .cell.n-head{border-radius:8px 0 0 8px;}
+  .cell.n-end{border-radius:0 8px 8px 0;}
+  .cell.n-head.n-end{border-radius:8px;}
+  .cell.ph{box-shadow:inset 0 0 0 100px rgba(255,200,40,.28);}
+  .cell.n-on.ph{box-shadow:inset 0 0 0 100px rgba(255,255,255,.35);}
+  .hint{font-size:12px; color:#8a857a; margin-top:8px;}
+  /* --- コントロール --- */
+  .controls{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px;}
+  button.ctl{
+    font-family:inherit; font-size:15px; padding:9px 16px;
+    border-radius:10px; border:1px solid var(--line); background:#fff;
+    cursor:pointer;
+  }
+  button.ctl:active{transform:translateY(1px);}
+  button.primary{
+    background:var(--accent); color:#fff; border-color:var(--accent);
+    font-weight:bold; min-width:110px;
+  }
+  .ctl-group{display:flex; align-items:center; gap:6px; font-size:14px;}
+  input[type=range]{width:130px; accent-color:var(--accent);}
+  label.chk{display:flex; align-items:center; gap:4px; font-size:14px; cursor:pointer;}
+  .spacer{flex:1;}
+  .tips{font-size:13px; color:#5d594f; line-height:1.7; margin:0; padding-left:1.2em;}
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
+    background:#333; color:#fff; padding:10px 18px; border-radius:10px;
+    font-size:14px; opacity:0; pointer-events:none; transition:opacity .3s;
+    z-index:10;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <h1>五音音階クリエイター<span class="sub">日本の音階で4小節の旋律をつくろう</span></h1>
+  <div class="name-box">
+    <label for="userName">名前</label>
+    <input id="userName" type="text" placeholder="なまえ を入力" maxlength="20">
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <h2>① 音階をえらぶ（あとから変えてもOK）</h2>
+    <div class="scales" id="scaleList"></div>
+  </section>
+
+  <section class="card">
+    <h2>② マスをタップして音をならべる（4分の4拍子・4小節）</h2>
+    <div class="grid-wrap">
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="hint">タップ:8分音符をおく → もう一度:4分音符にのばす → さらにもう一度:消す。なにも置かない場所は休符になります。</div>
+  </section>
+
+  <section class="card">
+    <h2>③ きく・のこす</h2>
+    <div class="controls">
+      <button class="ctl primary" id="playBtn">▶ 再生</button>
+      <div class="ctl-group">
+        <span>はやさ ♩=</span><span id="tempoVal">100</span>
+        <input type="range" id="tempo" min="60" max="140" step="5" value="100">
+      </div>
+      <label class="chk"><input type="checkbox" id="loopChk">くり返し</label>
+      <label class="chk"><input type="checkbox" id="taikoChk">太鼓の伴奏</label>
+      <span class="spacer"></span>
+      <button class="ctl" id="randomBtn">🎲 おまかせ</button>
+      <button class="ctl" id="clearBtn">全部消す</button>
+      <button class="ctl" id="copyBtn">🔗 リンクをコピー</button>
+      <button class="ctl" id="pngBtn">🖼 画像で保存</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>くふうのヒント</h2>
+    <ul class="tips">
+      <li>さいごの音を<strong>色つきの段の音（主音）</strong>にすると、曲が「終わった感じ」になります。</li>
+      <li>同じ音のならびのまま<strong>音階だけ変える</strong>と、雰囲気がどう変わるかくらべてみよう。</li>
+      <li>休符（なにも置かない場所)や、同じリズムのくり返しも音楽の大事な材料です。</li>
+    </ul>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ========= 定数 ========= */
+const COLS = 32;          // 8分音符×32 = 4小節
+const ROWS = 8;           // 音階5音 + 上の3音
+const BASE_FREQ = 261.63; // ド = C4
+const NOTE_NAMES = ["ド","レ♭","レ","ミ♭","ミ","ファ","ソ♭","ソ","ラ♭","ラ","シ♭","シ"];
+const SCALES = [
+  {name:"民謡音階", desc:"ソーラン節など、多くの日本民謡", iv:[0,3,5,7,10], color:"#3a5ba0"},
+  {name:"都節音階", desc:"「さくらさくら」など、しっとりした響き", iv:[0,1,5,7,8], color:"#8a4b7a"},
+  {name:"律音階",   desc:"雅楽や「君が代」につながる響き", iv:[0,2,5,7,9], color:"#3f7a4f"},
+  {name:"琉球音階", desc:"沖縄の音楽の明るい響き", iv:[0,4,5,7,11], color:"#c2652a"},
+];
+
+/* ========= 状態 ========= */
+let scaleIdx = 3;                      // 最初は琉球音階
+let notes = Array(COLS).fill(null);    // 各列: null か {row, len:1|2}（len2は次の列を占有）
+let playing = false;
+
+/* ========= ユーティリティ ========= */
+const $ = id => document.getElementById(id);
+function rowSemis(row){
+  const sc = SCALES[scaleIdx];
+  return Math.floor(row/5)*12 + sc.iv[row%5];
+}
+function rowName(row){
+  const s = rowSemis(row);
+  return (row>=5 ? "高" : "") + NOTE_NAMES[s%12];
+}
+function rowFreq(row){ return BASE_FREQ * Math.pow(2, rowSemis(row)/12); }
+function scaleNoteNames(idx){
+  return SCALES[idx].iv.map(s=>NOTE_NAMES[s]).join("・");
+}
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._tm);
+  toast._tm = setTimeout(()=>t.classList.remove("show"), 2200);
+}
+
+/* ========= 音階えらびUI ========= */
+function buildScaleList(){
+  const box = $("scaleList");
+  box.innerHTML = "";
+  SCALES.forEach((sc,i)=>{
+    const b = document.createElement("button");
+    b.className = "scale-btn" + (i===scaleIdx ? " active" : "");
+    b.innerHTML =
+      '<span class="s-name">'+sc.name+'</span>' +
+      '<span class="s-desc">'+sc.desc+'</span>' +
+      '<span class="s-notes">'+scaleNoteNames(i)+'</span>' +
+      '<span class="listen">♪ きく</span>';
+    b.addEventListener("click", e=>{
+      if(e.target.classList.contains("listen")){
+        previewScale(i);
+      }else{
+        setScale(i);
+      }
+    });
+    box.appendChild(b);
+  });
+}
+function setScale(i){
+  scaleIdx = i;
+  const c = SCALES[i].color;
+  document.documentElement.style.setProperty("--accent", c);
+  document.documentElement.style.setProperty("--accent-soft", c+"18");
+  buildScaleList();
+  refreshRowLabels();
+  save();
+}
+
+/* ========= グリッド ========= */
+const cellEl = [];   // cellEl[row][col]
+const labelEl = [];  // 行ラベル
+function buildGrid(){
+  const g = $("grid");
+  g.innerHTML = "";
+  // 拍ラベル行
+  g.appendChild(document.createElement("div")); // 左上の空きマス
+  for(let c=0;c<COLS;c++){
+    const d = document.createElement("div");
+    d.className = "beat-label" + (c%8===0 ? " bar-start" : "");
+    if(c%2===0) d.textContent = (c%8===0 ? (c/8+1)+"小節目 " : "") + (Math.floor(c/2)%4+1);
+    g.appendChild(d);
+  }
+  // 音の行（上が高い音）
+  for(let r=ROWS-1; r>=0; r--){
+    const lab = document.createElement("div");
+    lab.className = "row-label";
+    g.appendChild(lab);
+    labelEl[r] = lab;
+    cellEl[r] = [];
+    for(let c=0;c<COLS;c++){
+      const d = document.createElement("div");
+      d.className = "cell";
+      if(c%8===0) d.classList.add("bar-line");
+      else if(c%2===0) d.classList.add("beat-line");
+      if(r===0) d.classList.add("row-bottom");
+      d.addEventListener("pointerdown", ()=>onCell(r,c));
+      g.appendChild(d);
+      cellEl[r][c] = d;
+    }
+  }
+  refreshRowLabels();
+  renderNotes();
+}
+function refreshRowLabels(){
+  for(let r=0;r<ROWS;r++){
+    const tonic = (r%5===0);
+    labelEl[r].textContent = rowName(r);
+    labelEl[r].className = "row-label" + (tonic ? " tonic" : "");
+    for(let c=0;c<COLS;c++){
+      cellEl[r][c].classList.toggle("row-tonic", tonic);
+    }
+  }
+}
+function noteAt(col){
+  if(notes[col]) return {start:col, note:notes[col]};
+  if(col>0 && notes[col-1] && notes[col-1].len===2) return {start:col-1, note:notes[col-1]};
+  return null;
+}
+function onCell(row,col){
+  const hit = noteAt(col);
+  if(hit && hit.note.row===row){
+    if(hit.note.len===1 && hit.start<COLS-1){
+      const nxt = noteAt(hit.start+1);            // のばす先にある音はどける
+      if(nxt && nxt.start!==hit.start) notes[nxt.start]=null;
+      hit.note.len = 2;
+      playPitch(row, 2);
+    }else{
+      notes[hit.start] = null;                    // 消す
+    }
+  }else{
+    if(hit) notes[hit.start] = null;              // 同じ場所のべつの音と入れかえ
+    notes[col] = {row, len:1};
+    playPitch(row, 1);
+  }
+  renderNotes();
+  save();
+}
+function renderNotes(){
+  for(let r=0;r<ROWS;r++)
+    for(let c=0;c<COLS;c++)
+      cellEl[r][c].classList.remove("n-on","n-head","n-end");
+  for(let c=0;c<COLS;c++){
+    const n = notes[c];
+    if(!n) continue;
+    const head = cellEl[n.row][c];
+    head.classList.add("n-on","n-head");
+    if(n.len===2 && c+1<COLS){
+      const tail = cellEl[n.row][c+1];
+      tail.classList.add("n-on","n-end");
+    }else{
+      head.classList.add("n-end");
+    }
+  }
+}
+
+/* ========= 音（Web Audio・琴風の音） ========= */
+let actx = null, master = null, noiseBuf = null;
+const pluckCache = new Map();
+let activeSources = [];
+function ensureAudio(){
+  if(actx){ if(actx.state==="suspended") actx.resume(); return; }
+  actx = new (window.AudioContext||window.webkitAudioContext)();
+  const comp = actx.createDynamicsCompressor();
+  master = actx.createGain();
+  master.gain.value = 0.8;
+  master.connect(comp);
+  comp.connect(actx.destination);
+}
+/* カープラス・ストロング合成：弦をはじいたような音 */
+function pluckBuffer(freq){
+  const key = Math.round(freq*10);
+  if(pluckCache.has(key)) return pluckCache.get(key);
+  const sr = actx.sampleRate;
+  const N = Math.max(2, Math.round(sr/freq));
+  const len = Math.floor(sr*1.4);
+  const buf = actx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  for(let i=0;i<N;i++) d[i] = Math.random()*2-1;
+  for(let i=N;i<len;i++) d[i] = 0.498*(d[i-N]+d[i-N+1]);
+  pluckCache.set(key, buf);
+  return buf;
+}
+function schedulePluck(freq, t, gainVal){
+  const src = actx.createBufferSource();
+  src.buffer = pluckBuffer(freq);
+  const g = actx.createGain();
+  g.gain.value = gainVal;
+  src.connect(g); g.connect(master);
+  src.start(t);
+  activeSources.push(src);
+}
+function playPitch(row, len){
+  ensureAudio();
+  schedulePluck(rowFreq(row), actx.currentTime, len===2 ? 0.75 : 0.65);
+}
+function getNoiseBuf(){
+  if(noiseBuf) return noiseBuf;
+  const sr = actx.sampleRate, len = Math.floor(sr*0.08);
+  noiseBuf = actx.createBuffer(1, len, sr);
+  const d = noiseBuf.getChannelData(0);
+  for(let i=0;i<len;i++) d[i] = (Math.random()*2-1)*Math.pow(1-i/len,2);
+  return noiseBuf;
+}
+function scheduleDon(t){ // ドン（締太鼓の低い音）
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(130, t);
+  o.frequency.exponentialRampToValueAtTime(45, t+0.22);
+  g.gain.setValueAtTime(0.85, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t+0.3);
+  o.connect(g); g.connect(master);
+  o.start(t); o.stop(t+0.32);
+  activeSources.push(o);
+}
+function scheduleKa(t){ // カッ（高い打音）
+  const src = actx.createBufferSource();
+  src.buffer = getNoiseBuf();
+  const f = actx.createBiquadFilter();
+  f.type = "highpass"; f.frequency.value = 2500;
+  const g = actx.createGain(); g.gain.value = 0.35;
+  src.connect(f); f.connect(g); g.connect(master);
+  src.start(t);
+  activeSources.push(src);
+}
+
+/* ========= 再生 ========= */
+let passStart = 0, passSpb = 0, passTimer = null, rafId = null;
+function startPlayback(){
+  ensureAudio();
+  stopPlayback(false);
+  playing = true;
+  $("playBtn").textContent = "■ 止める";
+  passSpb = 60/Number($("tempo").value)/2; // 8分音符1つの長さ(秒)
+  schedulePass(actx.currentTime + 0.1);
+  rafId = requestAnimationFrame(drawPlayhead);
+}
+function schedulePass(t0){
+  passStart = t0;
+  for(let c=0;c<COLS;c++){
+    const n = notes[c];
+    if(n) schedulePluck(rowFreq(n.row), t0 + c*passSpb, n.len===2 ? 0.8 : 0.7);
+  }
+  if($("taikoChk").checked){
+    for(let beat=0; beat<16; beat++){
+      const t = t0 + beat*2*passSpb;
+      if(beat%2===0) scheduleDon(t); else scheduleKa(t);
+    }
+  }
+  const endIn = (t0 + COLS*passSpb - actx.currentTime)*1000;
+  passTimer = setTimeout(()=>{
+    if(playing && $("loopChk").checked){
+      schedulePass(passStart + COLS*passSpb);
+    }else{
+      stopPlayback(true);
+    }
+  }, Math.max(0, endIn - 60));
+}
+function stopPlayback(fade){
+  playing = false;
+  clearTimeout(passTimer);
+  cancelAnimationFrame(rafId);
+  activeSources.forEach(s=>{ try{ s.stop(); }catch(e){} });
+  activeSources = [];
+  clearPlayhead();
+  $("playBtn").textContent = "▶ 再生";
+}
+let lastPhCol = -1;
+function drawPlayhead(){
+  if(!playing) return;
+  const col = Math.floor((actx.currentTime - passStart)/passSpb);
+  if(col!==lastPhCol){
+    clearPlayhead();
+    if(col>=0 && col<COLS){
+      for(let r=0;r<ROWS;r++) cellEl[r][col].classList.add("ph");
+      lastPhCol = col;
+    }
+  }
+  rafId = requestAnimationFrame(drawPlayhead);
+}
+function clearPlayhead(){
+  if(lastPhCol>=0){
+    for(let r=0;r<ROWS;r++) cellEl[r][lastPhCol].classList.remove("ph");
+  }
+  lastPhCol = -1;
+}
+
+/* ========= 音階の試聴 ========= */
+function previewScale(idx){
+  ensureAudio();
+  const saved = scaleIdx;
+  scaleIdx = idx;
+  const seq = [0,1,2,3,4,5,4,3,2,1,0];
+  const t0 = actx.currentTime + 0.05, dt = 0.22;
+  seq.forEach((row,i)=> schedulePluck(rowFreq(row), t0 + i*dt, 0.6));
+  scaleIdx = saved;
+}
+
+/* ========= おまかせ生成 ========= */
+function randomMelody(){
+  const next = Array(COLS).fill(null);
+  const steps = [-2,-1,-1,0,1,1,2];
+  let row = [0,2,4,5][Math.floor(Math.random()*4)];
+  let col = 0;
+  while(col < COLS){
+    if(col>=COLS-2){                         // 終わりは主音の4分音符
+      row = (row>=3) ? 5 : 0;
+      if(col===COLS-2){ next[col]={row,len:2}; col+=2; }
+      else { next[col]={row,len:1}; col+=1; }
+      break;
+    }
+    if(col%8!==0 && Math.random()<0.08){ col++; continue; }   // ときどき休符
+    const len = (col%2===0 && Math.random()<0.45) ? 2 : 1;
+    next[col] = {row, len};
+    col += len;
+    row = Math.max(0, Math.min(ROWS-1, row + steps[Math.floor(Math.random()*steps.length)]));
+  }
+  notes = next;
+  renderNotes();
+  save();
+  startPlayback();
+}
+
+/* ========= 保存・共有 ========= */
+const LS_KEY = "pentatonic-creator-v1";
+function serializeMelody(){
+  let s = "";
+  for(let c=0;c<COLS;c++){
+    const n = notes[c];
+    if(!n){ s += "-"; continue; }
+    const ch = "abcdefgh"[n.row];
+    s += (n.len===2) ? ch.toUpperCase() : ch;
+  }
+  return s;
+}
+function deserializeMelody(s){
+  const next = Array(COLS).fill(null);
+  if(typeof s !== "string" || s.length !== COLS) return null;
+  for(let c=0;c<COLS;c++){
+    const ch = s[c];
+    if(ch === "-") continue;
+    const low = ch.toLowerCase();
+    const row = "abcdefgh".indexOf(low);
+    if(row < 0) return null;
+    const len = (ch !== low) ? 2 : 1;
+    if(len===2 && c+1<COLS && s[c+1] !== "-") return null;
+    next[c] = {row, len};
+  }
+  return next;
+}
+function currentState(){
+  return {
+    s: scaleIdx,
+    t: Number($("tempo").value),
+    n: $("userName").value,
+    m: serializeMelody()
+  };
+}
+function save(){
+  const st = currentState();
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(st)); }catch(e){}
+  const h = "#s="+st.s+"&t="+st.t+"&n="+encodeURIComponent(st.n)+"&m="+st.m;
+  history.replaceState(null, "", h);
+}
+function loadState(){
+  let st = null;
+  const h = location.hash;
+  if(h.includes("m=")){
+    const p = new URLSearchParams(h.slice(1));
+    st = { s:Number(p.get("s")), t:Number(p.get("t")), n:p.get("n")||"", m:p.get("m")||"" };
+  }else{
+    try{ st = JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
+  }
+  if(!st) return;
+  if(st.s>=0 && st.s<SCALES.length) scaleIdx = st.s;
+  if(st.t>=60 && st.t<=140){ $("tempo").value = st.t; $("tempoVal").textContent = st.t; }
+  if(st.n) $("userName").value = st.n;
+  const m = deserializeMelody(st.m);
+  if(m) notes = m;
+}
+function copyLink(){
+  save();
+  const url = location.href;
+  const done = ()=>toast("リンクをコピーしました。先生に送って提出できます");
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done).catch(()=>prompt("このリンクをコピーしてください", url));
+  }else{
+    prompt("このリンクをコピーしてください", url);
+  }
+}
+
+/* ========= 画像で保存 ========= */
+function exportPNG(){
+  const sc = SCALES[scaleIdx];
+  const W = 1060, H = 470, S = 2;
+  const cv = document.createElement("canvas");
+  cv.width = W*S; cv.height = H*S;
+  const x0 = 90, y0 = 96;             // グリッド左上
+  const cellW = 27, cellH = 36;
+  const gx = x0, gy = y0;
+  const ctx = cv.getContext("2d");
+  if(!ctx.roundRect){ ctx.roundRect = function(x,y,w,h){ this.rect(x,y,w,h); }; }
+  ctx.scale(S,S);
+  ctx.fillStyle = "#faf6ee";
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = "#2b2a28";
+  ctx.font = "bold 22px sans-serif";
+  ctx.fillText("わたしの旋律", 24, 40);
+  ctx.font = "15px sans-serif";
+  const name = $("userName").value || "（名前なし）";
+  ctx.fillText("名前：" + name, 200, 40);
+  ctx.fillStyle = sc.color;
+  ctx.font = "bold 16px sans-serif";
+  ctx.fillText(sc.name + "（" + scaleNoteNames(scaleIdx) + "）", 24, 70);
+  ctx.fillStyle = "#555";
+  ctx.font = "14px sans-serif";
+  ctx.fillText("♩= " + $("tempo").value + "　4分の4拍子・4小節", 480, 70);
+  // グリッド
+  for(let r=0;r<ROWS;r++){
+    const y = gy + (ROWS-1-r)*cellH;
+    if(r%5===0){
+      ctx.fillStyle = sc.color + "18";
+      ctx.fillRect(gx, y, cellW*COLS, cellH);
+    }
+    ctx.fillStyle = (r%5===0) ? sc.color : "#555";
+    ctx.font = (r%5===0) ? "bold 13px sans-serif" : "13px sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(rowName(r), gx-8, y+cellH/2+5);
+    ctx.textAlign = "left";
+  }
+  ctx.strokeStyle = "#ddd6c6";
+  for(let r=0;r<=ROWS;r++){
+    const y = gy + r*cellH;
+    ctx.beginPath(); ctx.moveTo(gx,y); ctx.lineTo(gx+cellW*COLS,y); ctx.stroke();
+  }
+  for(let c=0;c<=COLS;c++){
+    const x = gx + c*cellW;
+    ctx.strokeStyle = (c%8===0) ? "#a89f8a" : (c%2===0 ? "#d9d2c0" : "#eee8da");
+    ctx.lineWidth = (c%8===0) ? 2 : 1;
+    ctx.beginPath(); ctx.moveTo(x,gy); ctx.lineTo(x,gy+cellH*ROWS); ctx.stroke();
+  }
+  ctx.lineWidth = 1;
+  // 小節番号
+  ctx.fillStyle = "#777";
+  ctx.font = "12px sans-serif";
+  for(let b=0;b<4;b++) ctx.fillText((b+1)+"小節目", gx + b*8*cellW + 4, gy-8);
+  // 音符
+  ctx.fillStyle = sc.color;
+  for(let c=0;c<COLS;c++){
+    const n = notes[c];
+    if(!n) continue;
+    const x = gx + c*cellW + 2;
+    const y = gy + (ROWS-1-n.row)*cellH + 3;
+    const w = cellW*n.len - 4, h = cellH - 6;
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, 8);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#8a857a";
+  ctx.font = "12px sans-serif";
+  ctx.fillText("五音音階クリエイター", gx, gy + cellH*ROWS + 28);
+  const a = document.createElement("a");
+  a.download = "旋律_" + (name === "（名前なし）" ? "作品" : name) + ".png";
+  a.href = cv.toDataURL("image/png");
+  a.click();
+  toast("画像を保存しました");
+}
+
+/* ========= イベント ========= */
+$("playBtn").addEventListener("click", ()=>{
+  if(playing) stopPlayback(true); else startPlayback();
+});
+$("tempo").addEventListener("input", ()=>{
+  $("tempoVal").textContent = $("tempo").value;
+});
+$("tempo").addEventListener("change", save);
+$("userName").addEventListener("change", save);
+$("loopChk").addEventListener("change", ()=>{});
+$("randomBtn").addEventListener("click", randomMelody);
+$("clearBtn").addEventListener("click", ()=>{
+  if(notes.some(n=>n) && !confirm("ぜんぶ消してもいいですか？")) return;
+  notes = Array(COLS).fill(null);
+  renderNotes();
+  save();
+});
+$("copyBtn").addEventListener("click", copyLink);
+$("pngBtn").addEventListener("click", exportPNG);
+document.addEventListener("keydown", e=>{
+  if(e.code==="Space" && e.target.tagName!=="INPUT"){
+    e.preventDefault();
+    if(playing) stopPlayback(true); else startPlayback();
+  }
+});
+
+/* ========= 起動 ========= */
+loadState();
+buildScaleList();
+buildGrid();
+setScale(scaleIdx);
+</script>
+</body>
+</html>
