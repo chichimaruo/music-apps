@@ -147,6 +147,26 @@
   }
   .credit{font-size:10.5px; color:#a09a8c; margin-top:14px; text-align:center; line-height:1.7;}
   .credit a{color:#a09a8c;}
+  /* ===== 作曲家になろう ===== */
+  .c-scenes{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px;}
+  .c-scene{
+    text-align:center; cursor:pointer; font-family:inherit;
+    border:2px solid var(--line); border-radius:12px; background:#fff; padding:14px 8px;
+  }
+  .c-scene .emoji{font-size:34px; display:block;}
+  .c-scene .nm{font-size:14.5px; font-weight:bold; margin-top:4px; display:block;}
+  .c-scene .hint{font-size:11px; color:#8a857a; margin-top:3px; line-height:1.4; display:block;}
+  .c-scene.on{border-color:var(--accent); background:var(--accent-soft);}
+  .c-controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px 18px; margin-bottom:10px;}
+  .c-ctl .c-label{font-size:13px; font-weight:bold; color:#6b675e; margin-bottom:6px;}
+  .c-ctl .c-label span{color:var(--accent);}
+  .c-ctl input[type=range]{width:100%; accent-color:var(--accent);}
+  .seg{display:flex; gap:6px;}
+  .seg button{
+    flex:1; font-family:inherit; font-size:13px; padding:8px 4px; cursor:pointer;
+    border:1.5px solid var(--line); border-radius:9px; background:#fff; color:#5d594f;
+  }
+  .seg button.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:bold;}
   .toast{
     position:fixed; left:50%; bottom:28px; transform:translateX(-50%);
     background:#333; color:#fff; padding:10px 18px; border-radius:10px;
@@ -168,6 +188,7 @@
   <button data-mode="quiz">🖼 きいて当てる</button>
   <button data-mode="prom">🚶 プロムナードのへんか</button>
   <button data-mode="note">📝 プログラムノート</button>
+  <button data-mode="create">🎨 作曲家になろう</button>
   <button data-mode="lib">🎼 全曲をきく</button>
 </nav>
 
@@ -208,6 +229,62 @@
       <button class="ctl" id="sheetBtn">🖼 提出シートを画像で保存</button>
     </div>
     <div class="eval-note">📝 <b>評価のポイント</b>:①音楽のことば（はやさ・強さ・高さ・音色）を使えているか　②音楽の特徴と情景・気分を結びつけて書けているか</div>
+  </section>
+
+  <!-- ===== 作曲家になろう ===== -->
+  <section class="card" data-show="create">
+    <h2>🎨 作曲家になろう 〜お題の場面に合う音楽を、自分で作ろう〜</h2>
+    <div class="c-scenes" id="cScenes"></div>
+  </section>
+  <section class="card" data-show="create">
+    <h2>音楽の要素をえらぶ（ムソルグスキーのように、要素を組み合わせて場面をえがこう）</h2>
+    <div class="c-controls">
+      <div class="c-ctl">
+        <div class="c-label">速さ <span id="cTempoVal">ふつう</span></div>
+        <input type="range" id="cTempo" min="50" max="168" step="2" value="96">
+      </div>
+      <div class="c-ctl">
+        <div class="c-label">強さ <span id="cDynVal">ふつう</span></div>
+        <input type="range" id="cDyn" min="0" max="100" step="5" value="60">
+      </div>
+      <div class="c-ctl">
+        <div class="c-label">調（明るさ）</div>
+        <div class="seg" id="cKey">
+          <button data-v="major">長調（明るい）</button>
+          <button data-v="minor">短調（暗い）</button>
+        </div>
+      </div>
+      <div class="c-ctl">
+        <div class="c-label">音の高さ</div>
+        <div class="seg" id="cReg">
+          <button data-v="low">低い</button>
+          <button data-v="mid">ふつう</button>
+          <button data-v="high">高い</button>
+        </div>
+      </div>
+      <div class="c-ctl">
+        <div class="c-label">うごき</div>
+        <div class="seg" id="cMotion">
+          <button data-v="smooth">なめらか</button>
+          <button data-v="bounce">はずむ</button>
+          <button data-v="power">ちからづよい</button>
+        </div>
+      </div>
+      <div class="c-ctl">
+        <div class="c-label">楽器（音色）</div>
+        <select class="mv" id="cInst"></select>
+      </div>
+    </div>
+    <div class="quiz-bar" style="margin-top:6px;">
+      <button class="ctl primary" id="cPlayBtn" data-listen="__create__" data-label="▶ ならす">▶ ならす</button>
+      <button class="ctl" id="cRegenBtn">🔁 べつのフレーズ</button>
+    </div>
+    <textarea class="pn" id="cReason" placeholder="なぜこの組み合わせ？　えらんだお題に合うように工夫したことを書こう。（例:「お祭りなので、はやくて明るくて、はずむ感じにした。トランペットではなやかに…」）"></textarea>
+    <div class="quiz-bar" style="margin-top:10px;">
+      <button class="ctl" id="copyBtn2">🔗 リンクをコピー（提出）</button>
+      <button class="ctl" id="sheetBtn2">🖼 提出シートを画像で保存</button>
+    </div>
+    <div class="eval-note">📝 <b>評価のポイント</b>:①お題の場面に合うように、音楽の要素（速さ・調・高さ・強さ・うごき・音色）を選べているか　②選んだ理由を音楽のことばで説明できているか</div>
   </section>
 
   <!-- ===== 全曲ライブラリ ===== -->
@@ -269,6 +346,20 @@ const PICS = {
 };
 const WORDS_Q = ["はやい","ゆっくり","高い","低い","力強い","おだやか","明るい","暗い","かわいい","不気味","重々しい","はなやか","はずむような","ひきずるような"];
 const WORDS_P = ["堂々とした","明るい","しずか","やさしい","さみしい","悲しい","重い","軽やか","力強い","祈るような"];
+const SCENES = [
+  {id:"asa",    emoji:"🌅", nm:"朝の光",       hint:"しずかに目ざめる朝"},
+  {id:"arashi", emoji:"⛈", nm:"嵐",           hint:"はげしい風と雷"},
+  {id:"matsuri",emoji:"🎉", nm:"お祭り",       hint:"にぎやかでたのしい"},
+  {id:"mori",   emoji:"🌲", nm:"夜の森",       hint:"くらくて少しこわい"},
+  {id:"koushin",emoji:"🥁", nm:"行進",         hint:"きちんとそろった足どり"},
+  {id:"wakare", emoji:"💧", nm:"かなしい別れ", hint:"しんみり、なみだ"},
+];
+const C_INSTS = [
+  {id:"flute",name:"フルート"},{id:"oboe",name:"オーボエ"},{id:"clarinet",name:"クラリネット"},
+  {id:"sax",name:"サクソフォン"},{id:"bassoon",name:"ファゴット"},{id:"trumpet",name:"トランペット"},
+  {id:"horn",name:"ホルン"},{id:"trombone",name:"トロンボーン"},{id:"violin",name:"ヴァイオリン"},
+  {id:"piano",name:"ピアノ"},{id:"tutti",name:"みんなで（合奏）"},
+];
 
 /* ========= 状態 ========= */
 let mode = "quiz";
@@ -280,6 +371,8 @@ let selLetter = null;
 let promWords = {};          // promId -> [wordIdx]
 let pnMove = "bydlo";
 let pnWords = {};            // moveId -> [wordIdx]
+let cScene="matsuri", cTempo=120, cDyn=70, cKey="major", cReg="mid", cMotion="bounce", cInst="trumpet";
+let cPhrase=null;            // 生成した旋律 [[u,d,midi],...]
 
 const $ = id => document.getElementById(id);
 function toast(msg){
@@ -505,7 +598,7 @@ function playInst(id, midi, t, dur, vol){
 }
 
 /* ========= 再生スケジューラ ========= */
-let playing=false, playingId=null, timer=null, evIdx=0, anchorT=0, anchorU=0, curEvents=null, curUnitSec=0;
+let playing=false, playingId=null, timer=null, evIdx=0, anchorT=0, anchorU=0, curEvents=null, curUnitSec=0, curInst="flute";
 function buildMoveEvents(id){
   const md = MOVEMENT_DATA[id];
   const evs = md.notes.map(n=>({u:n[0], d:n[1], m:n[2], v:n[3]}));
@@ -520,6 +613,7 @@ function playMovement(id){
   const md = MOVEMENT_DATA[id];
   curEvents = buildMoveEvents(id);
   curUnitSec = 60/md.tempo/12;
+  curInst = moveById(id).inst;
   evIdx = 0; anchorU = 0;
   anchorT = actx.currentTime + 0.12;
   playing = true; playingId = id;
@@ -529,7 +623,7 @@ function playMovement(id){
 }
 function tick(){
   if(!playing) return;
-  const inst = moveById(playingId).inst;
+  const inst = curInst;
   const horizon = actx.currentTime + 0.18;
   let guard = 0;
   while(playing && guard++ < 900){
@@ -787,6 +881,72 @@ function buildLib(){
   }
 }
 
+/* ========= 作曲家になろう ========= */
+function genPhrase(){
+  const scale = (cKey==="major") ? [0,2,4,5,7,9,11] : [0,2,3,5,7,8,10];
+  const base = {low:48, mid:60, high:72}[cReg];
+  let lens, steps, leap;
+  if(cMotion==="smooth"){ lens=[12,18,24,12,12]; steps=[-2,-1,-1,0,1,1,2]; leap=0; }
+  else if(cMotion==="bounce"){ lens=[6,6,6,12,6]; steps=[-2,-1,0,1,1,2]; leap=0.12; }
+  else { lens=[12,12,24,12]; steps=[-1,0,0,1,2]; leap=0.18; }
+  const total=192; const out=[]; let u=0, deg=0;
+  while(u<total){
+    let len=lens[Math.floor(Math.random()*lens.length)];
+    if(u+len>total) len=total-u;
+    out.push([u,len,deg]); u+=len;
+    if(Math.random()<leap) deg += (Math.random()<0.5?7:-7);
+    else deg += steps[Math.floor(Math.random()*steps.length)];
+    deg=Math.max(-3, Math.min(11, deg));
+  }
+  out[out.length-1][2]=Math.round(out[out.length-1][2]/7)*7;  // 最後は主音で
+  cPhrase = out.map(([uu,dd,dg])=>{
+    const oct=Math.floor(dg/7), idx=((dg%7)+7)%7;
+    return [uu, dd, base+oct*12+scale[idx]];
+  });
+}
+function playCreate(){
+  ensureAudio();
+  if(playing && playingId==="__create__"){ stopAll(); return; }
+  stopAll();
+  if(!cPhrase) genPhrase();
+  const vel = 45 + cDyn*0.65;
+  curEvents = cPhrase.map(n=>({u:n[0], d:n[1], m:n[2], v:vel})).sort((a,b)=>a.u-b.u);
+  curEvents.push({u:192, end:true});
+  curUnitSec = 60/cTempo/12;
+  curInst = cInst;
+  evIdx=0; anchorU=0; anchorT=actx.currentTime+0.12;
+  playing=true; playingId="__create__";
+  refreshListenBtns();
+  timer=setInterval(tick,30); tick();
+}
+function segSet(id, val){
+  document.querySelectorAll("#"+id+" button").forEach(b=>b.classList.toggle("on", b.dataset.v===val));
+}
+function updCreateLabels(){
+  const t=Number($("cTempo").value);
+  $("cTempoVal").textContent = t<76 ? "おそい" : (t<120 ? "ふつう" : "はやい");
+  const dv=Number($("cDyn").value);
+  $("cDynVal").textContent = dv<35 ? "よわい" : (dv<70 ? "ふつう" : "つよい");
+}
+function buildCreate(){
+  const sb=$("cScenes"); sb.innerHTML="";
+  for(const s of SCENES){
+    const d=document.createElement("button");
+    d.className="c-scene"+(s.id===cScene?" on":"");
+    d.innerHTML='<span class="emoji">'+s.emoji+'</span><span class="nm">'+s.nm+'</span><span class="hint">'+s.hint+'</span>';
+    d.addEventListener("click",()=>{ cScene=s.id; buildCreate(); save(); });
+    sb.appendChild(d);
+  }
+  const sel=$("cInst");
+  if(!sel.options.length){
+    for(const i of C_INSTS){ const o=document.createElement("option"); o.value=i.id; o.textContent=i.name; sel.appendChild(o); }
+  }
+  sel.value=cInst;
+  $("cTempo").value=cTempo; $("cDyn").value=cDyn;
+  updCreateLabels();
+  segSet("cKey",cKey); segSet("cReg",cReg); segSet("cMotion",cMotion);
+}
+
 /* ========= 保存・共有 ========= */
 const LS_KEY = "tenrankai-lab-v1";
 function packWords(obj){
@@ -809,6 +969,7 @@ function save(){
     qo:quizOrder.join(","), qp:packWords(Object.fromEntries(Object.entries(quizPick).map(([k,v])=>[k,[QUIZ_IDS.indexOf(v)]]))),
     qw:packWords(quizWords), pw:packWords(promWords),
     pn:pnMove, pt:$("pnText").value, pc:packWords(pnWords),
+    cs:cScene, ck:cKey, cr:cReg, cm:cMotion, ci:cInst, ct:cTempo, cd:cDyn, crz:$("cReason").value,
   };
   try{ localStorage.setItem(LS_KEY, JSON.stringify(st)); }catch(e){}
 }
@@ -830,7 +991,15 @@ function applyState(st){
   if(st.pn && MOVES.some(m=>m.id===st.pn)) pnMove = st.pn;
   if(st.pt) $("pnText").value = st.pt;
   if(st.pc) pnWords = unpackWords(st.pc, WORDS_Q.length);
-  if(st.mode && ["quiz","prom","note","lib"].includes(st.mode)) mode = st.mode;
+  if(st.cs && SCENES.some(s=>s.id===st.cs)) cScene = st.cs;
+  if(st.ck==="major"||st.ck==="minor") cKey = st.ck;
+  if(["low","mid","high"].includes(st.cr)) cReg = st.cr;
+  if(["smooth","bounce","power"].includes(st.cm)) cMotion = st.cm;
+  if(st.ci && C_INSTS.some(i=>i.id===st.ci)) cInst = st.ci;
+  if(st.ct>=50 && st.ct<=168) cTempo = Number(st.ct);
+  if(st.cd>=0 && st.cd<=100) cDyn = Number(st.cd);
+  if(st.crz) $("cReason").value = st.crz;
+  if(st.mode && ["quiz","prom","note","create","lib"].includes(st.mode)) mode = st.mode;
 }
 function load(){
   const h = location.hash;
@@ -840,6 +1009,8 @@ function load(){
       name:decodeURIComponent(p.get("n")||""), qo:p.get("qo")||"", qp:p.get("qp")||"",
       qw:p.get("qw")||"", pw:p.get("pw")||"",
       pn:p.get("pn")||"", pt:decodeURIComponent(p.get("pt")||""), pc:p.get("pc")||"",
+      cs:p.get("cs"), ck:p.get("ck"), cr:p.get("cr"), cm:p.get("cm"), ci:p.get("ci"),
+      ct:Number(p.get("ct")||120), cd:Number(p.get("cd")||70), crz:decodeURIComponent(p.get("crz")||""),
       mode:p.get("m")||"note",
     });
     return;
@@ -848,13 +1019,15 @@ function load(){
   try{ st = JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){}
   applyState(st);
 }
-$("copyBtn").addEventListener("click", ()=>{
+function copyLink(){
   save();
   const qpEnc = Object.entries(quizPick).map(([L,v])=>L+":"+QUIZ_IDS.indexOf(v)).join(";");
-  const hash = "#m=note&n="+encodeURIComponent($("userName").value)
+  const hash = "#m="+(mode==="quiz"||mode==="prom"||mode==="lib"?"note":mode)+"&n="+encodeURIComponent($("userName").value)
     + "&qo="+quizOrder.join(",") + "&qp="+qpEnc + "&qw="+packWords(quizWords)
     + "&pw="+packWords(promWords)
-    + "&pn="+pnMove + "&pt="+encodeURIComponent($("pnText").value) + "&pc="+packWords(pnWords);
+    + "&pn="+pnMove + "&pt="+encodeURIComponent($("pnText").value) + "&pc="+packWords(pnWords)
+    + "&cs="+cScene + "&ck="+cKey + "&cr="+cReg + "&cm="+cMotion + "&ci="+cInst
+    + "&ct="+cTempo + "&cd="+cDyn + "&crz="+encodeURIComponent($("cReason").value);
   const url = location.href.split("#")[0] + hash;
   const done = ()=>toast("リンクをコピーしました。先生に送って提出しよう");
   if(navigator.clipboard && navigator.clipboard.writeText){
@@ -862,7 +1035,8 @@ $("copyBtn").addEventListener("click", ()=>{
   }else{
     prompt("このリンクをコピーしてください", url);
   }
-});
+}
+$("copyBtn").addEventListener("click", copyLink);
 
 /* ========= 提出シート（PNG） ========= */
 function wrapText(ctx, text, maxW){
@@ -922,6 +1096,22 @@ function exportSheet(){
   for(const l of wrapText(ctx, body, W-pad*2-20)){
     rows.push({text:"　"+l, font:"15px sans-serif", color:"#2b2a28", gap:24});
   }
+  rows.push({text:"", font:"15px sans-serif", color:"#000", gap:12});
+  rows.push({text:"■ 作曲家になろう（自分で作った音楽）", font:"bold 18px sans-serif", color:"#7a4b2a", gap:30});
+  const sc = SCENES.find(s=>s.id===cScene);
+  const keyN = cKey==="major"?"長調（明るい）":"短調（暗い）";
+  const regN = {low:"低い",mid:"ふつう",high:"高い"}[cReg];
+  const motN = {smooth:"なめらか",bounce:"はずむ",power:"ちからづよい"}[cMotion];
+  const instN = (C_INSTS.find(i=>i.id===cInst)||{}).name || cInst;
+  const tN = cTempo<76?"おそい":(cTempo<120?"ふつう":"はやい");
+  const dN = cDyn<35?"よわい":(cDyn<70?"ふつう":"つよい");
+  rows.push({text:"お題："+(sc?sc.emoji+" "+sc.nm:"（未選択）"), font:"15px sans-serif", color:"#2b2a28", gap:26});
+  rows.push({text:"設定：速さ="+tN+"／調="+keyN+"／高さ="+regN+"／強さ="+dN+"／うごき="+motN+"／楽器="+instN, font:"13px sans-serif", color:"#6b675e", gap:24});
+  rows.push({text:"くふうの理由：", font:"bold 15px sans-serif", color:"#2b2a28", gap:24});
+  ctx.font = "15px sans-serif";
+  for(const l of wrapText(ctx, $("cReason").value || "（未記入）", W-pad*2-20)){
+    rows.push({text:"　"+l, font:"15px sans-serif", color:"#2b2a28", gap:24});
+  }
   const H = rows.reduce((a,r)=>a+r.gap, 0) + pad*2 + 20;
   cv.width = W*S; cv.height = H*S;
   const c = cv.getContext("2d");
@@ -947,6 +1137,29 @@ function exportSheet(){
 $("sheetBtn").addEventListener("click", exportSheet);
 $("userName").addEventListener("change", save);
 $("pnText").addEventListener("change", save);
+/* 作曲家になろう のイベント */
+["cKey","cReg","cMotion"].forEach(id=>{
+  document.querySelectorAll("#"+id+" button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(id==="cKey") cKey=b.dataset.v;
+      else if(id==="cReg") cReg=b.dataset.v;
+      else cMotion=b.dataset.v;
+      segSet(id, b.dataset.v);
+      cPhrase=null;   // 設定が変わったら作り直す
+      save();
+    });
+  });
+});
+$("cTempo").addEventListener("input", updCreateLabels);
+$("cTempo").addEventListener("change", ()=>{ cTempo=Number($("cTempo").value); save(); });
+$("cDyn").addEventListener("input", updCreateLabels);
+$("cDyn").addEventListener("change", ()=>{ cDyn=Number($("cDyn").value); save(); });
+$("cInst").addEventListener("change", ()=>{ cInst=$("cInst").value; save(); });
+$("cPlayBtn").addEventListener("click", playCreate);
+$("cRegenBtn").addEventListener("click", ()=>{ genPhrase(); playCreate(); });
+$("cReason").addEventListener("change", save);
+$("copyBtn2").addEventListener("click", copyLink);
+$("sheetBtn2").addEventListener("click", exportSheet);
 
 /* ========= 起動 ========= */
 load();
@@ -954,6 +1167,7 @@ if(quizOrder.length!==4) quizOrder = shuffle(QUIZ_IDS);
 buildQuiz();
 buildProms();
 buildPn();
+buildCreate();
 buildLib();
 setMode(mode);
 </script>
