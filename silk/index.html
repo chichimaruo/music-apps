@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>音楽でシルクロードの旅</title>
+<style>
+:root{
+  --bg:#1a1410; --panel:#27201a; --panel2:#322820; --line:#4a3c2c;
+  --txt:#f4ecdf; --sub:#c3b39a; --acc:#d9a441;
+  --acc2:#efc468; --sand:#caa86a;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI",Meiryo,sans-serif;
+  background:linear-gradient(165deg,#1a1410,#241a12 55%,#2a1d14);
+  color:var(--txt);line-height:1.6;-webkit-text-size-adjust:100%;
+}
+header{
+  text-align:center;padding:13px 12px 9px;
+  background:linear-gradient(180deg,#3a2a18,#241a12);border-bottom:2px solid var(--acc);
+}
+header h1{margin:0;font-size:21px;letter-spacing:.04em;color:var(--acc2);}
+header .sub{font-size:11.5px;color:var(--sub);margin-top:2px;}
+.wrap{max-width:960px;margin:0 auto;padding:10px 12px 60px;}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:10px 0 4px;}
+.tab{flex:1 1 0;min-width:88px;padding:9px 6px;border-radius:11px 11px 0 0;
+  background:var(--panel2);color:var(--sub);border:1px solid var(--line);border-bottom:none;
+  font-size:13px;font-weight:700;text-align:center;cursor:pointer;transition:.15s;user-select:none;}
+.tab.active{background:var(--panel);color:var(--acc2);box-shadow:inset 0 3px 0 var(--acc);}
+.tab small{display:block;font-weight:400;font-size:10px;opacity:.8;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:0 0 14px 14px;padding:15px;margin-bottom:14px;}
+.page{display:none;}.page.show{display:block;animation:fade .25s;}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+h2.t{margin:0 0 4px;font-size:17px;color:var(--acc2);}
+.lead{font-size:13px;color:var(--sub);margin:0 0 12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;justify-content:center;padding:10px 16px;border-radius:11px;
+  border:none;cursor:pointer;font-size:14px;font-weight:700;background:var(--acc);color:#2a1d08;transition:.12s;user-select:none;}
+.btn:active{transform:scale(.96);}
+.btn.sec{background:var(--panel2);color:var(--txt);border:1px solid var(--line);}
+.btn.stop{background:#b0432b;color:#fff;}
+.btn:disabled{opacity:.4;cursor:default;}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.center{justify-content:center;}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px;}
+
+/* MAP */
+.mapbox{position:relative;width:100%;border-radius:14px;overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(circle at 70% 30%,#3a2c1a,#241a12 70%);}
+svg.map{display:block;width:100%;height:auto;}
+.stop-dot{cursor:pointer;}
+.stop-dot circle{transition:.15s;}
+.stop-dot.active circle.outer{stroke:#fff;stroke-width:3;}
+.stop-label{font-size:21px;font-weight:700;fill:var(--txt);text-anchor:middle;pointer-events:none;}
+.routepath{stroke:var(--sand);stroke-width:3;stroke-dasharray:3 9;fill:none;opacity:.7;}
+.detail{margin-top:12px;}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;}
+.chip{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:5px 12px;font-size:13px;font-weight:700;}
+.chip.scale{background:#3a2f1c;color:var(--acc2);}
+.inst-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--txt);font-size:13px;font-weight:700;cursor:pointer;}
+.inst-btn:active{transform:scale(.95);}
+.flag{font-size:26px;}
+
+/* compare bars */
+.scalebar{display:flex;align-items:center;gap:10px;padding:9px;border-radius:11px;background:var(--panel2);
+  border:1px solid var(--line);margin:7px 0;cursor:pointer;}
+.scalebar:active{transform:scale(.99);}
+.scalebar .nm{font-weight:700;font-size:14px;min-width:120px;}
+.scalebar .ds{font-size:11px;color:var(--sub);}
+.micro{color:#e87d3c;font-weight:700;}
+
+/* climax */
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch;margin:10px 0;}
+.vs .col{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;}
+.vs .arrow{display:flex;align-items:center;font-size:24px;color:var(--acc2);}
+.vs h3{margin:.1em 0;font-size:15px;color:var(--acc2);}
+.vs .meta{font-size:11px;color:var(--sub);}
+.shared{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+.shared .s{background:#3a2f1c;border:1px solid var(--acc);border-radius:16px;padding:4px 11px;font-size:12px;color:var(--acc2);font-weight:700;}
+
+/* quiz */
+.bignum{font-size:40px;font-weight:800;color:var(--acc2);text-align:center;}
+.qopts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0;}
+.qopt{padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
+  font-size:14px;font-weight:700;cursor:pointer;text-align:center;}
+.qopt.correct{background:#2e6b3a;border-color:#4caf60;color:#fff;}
+.qopt.wrong{background:#7a2f24;border-color:#c0432b;color:#fff;}
+
+textarea{width:100%;min-height:62px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);
+  border-radius:10px;padding:9px;font-size:13px;font-family:inherit;resize:vertical;}
+.fld{margin:10px 0;}.fld label{font-size:13px;font-weight:700;color:var(--acc2);display:block;margin-bottom:4px;}
+input.txt{font-size:15px;padding:7px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);}
+.hint{font-size:11px;color:var(--sub);}
+details{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;}
+summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--acc2);}
+details p{font-size:12.5px;color:var(--sub);}
+a.yt{color:var(--acc2);font-size:12.5px;}
+.foot{text-align:center;font-size:11px;color:var(--sub);margin-top:16px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🐫 音楽でシルクロードの旅</h1>
+  <div class="sub">六段の調べ ／ ジェッディン・デデン ／ トルコ行進曲 ― 東と西をつないだ音楽の道</div>
+</header>
+
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-p="0">①地図の旅<small>地域の音</small></div>
+    <div class="tab" data-p="1">②トルコの音<small>伝わった音楽</small></div>
+    <div class="tab" data-p="2">③音階くらべ<small>微分音も</small></div>
+    <div class="tab" data-p="3">④クイズ<small>聴き分け</small></div>
+    <div class="tab" data-p="4">⑤まとめ<small>ワークシート</small></div>
+  </div>
+
+  <!-- ① 地図の旅 -->
+  <section class="page show panel" id="p0">
+    <h2 class="t">① シルクロードを旅して、地域の音を聴こう</h2>
+    <p class="lead">シルクロードは西暦200〜1500年ごろ、東洋（中国・日本）と西洋（ヨーロッパ）をつないだ交易路。<b>商品だけでなく、音楽や文化も行き来して影響しあいました</b>。各地（◯）をタップして、その土地の楽器と音階を聴いてみよう。</p>
+    <div class="mapbox">
+      <svg class="map" viewBox="0 0 1000 360" id="mapsvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="detail card" id="regionDetail">
+      <div class="hint">↑ 地図の◯をタップすると、ここに地域の楽器・音階・代表曲が出ます。</div>
+    </div>
+  </section>
+
+  <!-- ② トルコの音 -->
+  <section class="page panel" id="p1">
+    <h2 class="t">② 「トルコの音」はどう旅した？</h2>
+    <p class="lead">オスマン帝国の軍楽隊「<b>メフテル</b>」の音楽（例：ジェッディン・デデン）は、大太鼓やシンバルを打ち鳴らす勇ましいもの。この“トルコ風”の響きはヨーロッパに伝わり、モーツァルトらが<b>「トルコ行進曲」</b>として取り入れました。聴き比べてみよう。</p>
+    <div class="vs">
+      <div class="col">
+        <div class="flag">🌙</div>
+        <h3>メフテル（オスマン軍楽）</h3>
+        <div class="meta">トルコ ／ ジェッディン・デデン の様式<br>ズルナ＋大太鼓・シンバル</div>
+        <button class="btn" id="playMehter" style="margin-top:8px;">▶ 聴く</button>
+      </div>
+      <div class="arrow">➡</div>
+      <div class="col">
+        <div class="flag">🏛</div>
+        <h3>トルコ行進曲</h3>
+        <div class="meta">ヨーロッパ ／ モーツァルト<br>ピアノ＋“トルコ風”打楽器</div>
+        <button class="btn" id="playTurca" style="margin-top:8px;">▶ 聴く</button>
+      </div>
+    </div>
+    <button class="btn stop" id="stopClimax" style="display:block;margin:0 auto;" disabled>■ 停止</button>
+    <div class="card" style="margin-top:12px;">
+      <div style="font-size:13px;">両方に共通する“トルコらしさ”：</div>
+      <div class="shared">
+        <span class="s">大太鼓・シンバルの打楽器</span>
+        <span class="s">行進のリズム</span>
+        <span class="s">短調の異国的な響き</span>
+      </div>
+      <div class="hint" style="margin-top:8px;">★ ジャニサリー（軍楽隊）の打楽器は、のちにヨーロッパのオーケストラに「トルコ風」として加わりました。これがシルクロード的な“音楽の伝播・変容”です。</div>
+    </div>
+  </section>
+
+  <!-- ③ 音階くらべ -->
+  <section class="page panel" id="p2">
+    <h2 class="t">③ 地域の音階を聴きくらべよう</h2>
+    <p class="lead">同じ「ドレミ」でも、地域によって使う音（音階）がちがいます。タップして聴き、ひびきの違いを感じよう。中東の音階には、ピアノにはない<span class="micro">微分音（半音よりさらに細かい音）</span>が含まれます。</p>
+    <div id="scaleList"></div>
+    <div class="hint" style="margin-top:6px;">★ 西へ進むほど、日本・中国の素朴な五音音階から、中東の微分音をふくむ複雑な音階へと変化していきます。</div>
+  </section>
+
+  <!-- ④ クイズ -->
+  <section class="page panel" id="p3">
+    <h2 class="t">④ 聴き分けクイズ</h2>
+    <p class="lead">流れた音は、どの地域のもの？　楽器や音階の特徴を手がかりに当てよう。</p>
+    <div class="card" style="text-align:center;margin-bottom:10px;">
+      <span class="hint">スコア</span>　<span class="bignum" id="score" style="font-size:30px;">0</span> <span class="hint">/ <span id="qtotal">0</span></span>
+    </div>
+    <div class="row center"><button class="btn" id="qplay">🔊 音を聴く</button><button class="btn sec" id="qreplay" disabled>もう一度</button></div>
+    <div class="qopts" id="qopts"></div>
+    <div id="qfeedback" class="hint" style="text-align:center;min-height:20px;"></div>
+    <div class="row center"><button class="btn sec" id="qnext" style="display:none;">次の問題 ▶</button></div>
+  </section>
+
+  <!-- ⑤ まとめ -->
+  <section class="page panel" id="p4">
+    <h2 class="t">⑤ まとめ・ワークシート</h2>
+    <p class="lead">学んだことをふり返って書こう。記入後「シートを保存」で画像として残せます（先生に提出）。</p>
+    <div class="card" style="margin-bottom:10px;">
+      <b style="color:var(--acc2);font-size:13px;">学習のポイント</b>
+      <ul style="font-size:12.5px;color:var(--sub);margin:6px 0 0;padding-left:20px;">
+        <li>シルクロードでは商品だけでなく音楽も伝わり、互いに影響しあった</li>
+        <li>地域ごとに楽器や音階（五音音階・微分音をふくむ音階など）が異なる</li>
+        <li>オスマンの軍楽（メフテル）の“トルコ風”がヨーロッパの「トルコ行進曲」に取り入れられた</li>
+      </ul>
+    </div>
+    <div class="fld"><label>1. いちばん印象に残った地域の音は？　それはどんな響きだった？</label><textarea id="ws1"></textarea></div>
+    <div class="fld"><label>2. 日本（六段）と中東・トルコの音階は、どこがちがうと感じた？</label><textarea id="ws2"></textarea></div>
+    <div class="fld"><label>3. 「トルコの音」がヨーロッパに伝わった例（メフテル→トルコ行進曲）から、音楽の伝わり方について気づいたこと</label><textarea id="ws3"></textarea></div>
+    <div class="fld"><label>名前</label><input class="txt" id="wsName" type="text" placeholder="クラス・名前" style="width:180px;"></div>
+    <div class="row center">
+      <button class="btn" id="saveWS">🖼 シートを保存</button>
+      <a class="yt" href="https://www.youtube.com/results?search_query=ジェッディン・デデン+メフテル" target="_blank" rel="noopener">▶ メフテルの本物をYouTubeで見る</a>
+    </div>
+    <canvas id="wsCanvas" width="900" height="1140" style="display:none;"></canvas>
+  </section>
+
+  <div class="foot">中学校 音楽科 鑑賞教材アプリ ／ 音源：Web Audio による合成（トルコ行進曲はMozart BWV K.331の旋律を採譜、他は各地域の音階・様式を再現）<br><span style="opacity:.6">build v1</span></div>
+</div>
+
+<script>
+"use strict";
+/* ============ データ ============ */
+// トルコ行進曲（モーツァルト「トルコ行進曲付き」主題、採譜・イ短調） [start16,dur16,midi]
+const TURCA=[[0,1,71],[1,1,69],[2,1,68],[3,1,69],[4,1,72],[8,1,74],[9,1,72],[10,1,71],[11,1,72],[12,1,76],[16,1,77],[17,1,76],[18,1,75],[19,1,76],[20,1,83],[21,1,81],[22,1,80],[23,1,81],[24,1,83],[25,1,81],[26,1,80],[27,1,81],[28,4,84],[32,1,81],[34,1,84],[35,1,79],[36,1,81],[38,1,81],[40,1,79],[42,1,81],[43,1,79],[44,1,81],[46,1,81],[48,1,79],[50,1,81],[51,1,79],[52,1,81],[54,1,81],[56,1,79],[58,1,78],[60,4,76]];
+// メフテル（マカーム・ヒジャーズ風の行進、様式再現） root D
+const MEHTER=[[0,2,62],[2,2,62],[4,2,69],[6,2,69],[8,2,70],[10,2,69],[12,2,67],[14,2,66],[16,4,67],[20,2,69],[22,2,67],[24,2,66],[26,2,67],[28,4,69],[32,2,74],[34,2,72],[36,2,70],[38,2,69],[40,2,67],[42,2,66],[44,4,62]];
+// 六段の調べ（平調子＝都節音階、様式再現） ゆったり
+const ROKUDAN=[[0,6,74],[6,2,70],[8,4,69],[12,4,67],[16,2,69],[18,2,70],[20,4,69],[24,4,67],[28,4,63],[32,8,62]];
+
+// 音階（root midi と 半音オフセット。.5 で微分音）
+const SCALES={
+  miyako:{name:"都節音階（日本）",root:62,off:[0,1,5,7,8,12],ds:"日本の箏・尺八。半音をふくむ素朴な五音"},
+  china:{name:"五声音階（中国）",root:60,off:[0,2,4,7,9,12],ds:"中国・東アジアに広い。明るく素朴な五音"},
+  dorian:{name:"中央アジアの旋法",root:62,off:[0,2,3,5,7,9,10,12],ds:"遊牧民の弦楽器。短調寄りの7音"},
+  rast:{name:"マカーム・ラスト（中東）",root:60,off:[0,2,3.5,5,7,9,10.5,12],ds:"アラブ・ペルシャ。半音より細かい微分音をふくむ"},
+  hicaz:{name:"マカーム・ヒジャーズ（トルコ）",root:62,off:[0,1,4,5,7,8,11,12],ds:"オスマン。増2度の“異国的”な響き"},
+  minor:{name:"和声的短音階（ヨーロッパ）",root:69,off:[0,2,3,5,7,8,11,12],ds:"西洋クラシック。トルコ行進曲もこの仲間"}
+};
+
+// 地域（東→西）。x,y は viewBox 1000x360 上の位置
+const REGIONS=[
+  {id:"jp",flag:"⛩",name:"日本",x:935,y:120,insts:[["koto","箏（こと）"]],scale:"miyako",piece:["rokudan","六段の調べ"],
+    ds:"シルクロードの東の終点。箏で「六段の調べ」。半音をふくむ平調子（都節）の、静かで気品ある響き。"},
+  {id:"cn",flag:"🏮",name:"中国",x:775,y:185,insts:[["erhu","二胡（にこ）"],["pipa","琵琶（びわ）"]],scale:"china",piece:null,
+    ds:"二胡は弓でこする弦楽器、琵琶ははじく弦楽器。明るい五声音階。琵琶は西のウードと“親せき”。"},
+  {id:"ca",flag:"🏜",name:"中央アジア",x:600,y:120,insts:[["dutar","ドゥタール"]],scale:"dorian",piece:null,
+    ds:"草原の遊牧民の弦楽器。東西の文化が出会う中継地。"},
+  {id:"me",flag:"🕌",name:"ペルシャ・中東",x:425,y:200,insts:[["oud","ウード"],["santur","サントゥール"]],scale:"rast",piece:null,
+    ds:"ウードははじく弦、サントゥールは打つ弦。音階に微分音をふくみ、独特のうねりがある。"},
+  {id:"tr",flag:"🌙",name:"トルコ（オスマン）",x:255,y:128,insts:[["zurna","ズルナ"]],scale:"hicaz",piece:["mehter","ジェッディン・デデン（メフテル）"],
+    ds:"オスマン帝国の軍楽メフテル。ズルナの鋭い音と大太鼓・シンバル。“トルコ風”がヨーロッパへ。"},
+  {id:"eu",flag:"🏛",name:"ヨーロッパ",x:80,y:195,insts:[["piano","ピアノ"]],scale:"minor",piece:["turca","トルコ行進曲（モーツァルト）"],
+    ds:"シルクロードの西の終点。トルコの軍楽をまねた「トルコ行進曲」が生まれた。"}
+];
+
+/* ============ Web Audio ============ */
+let actx=null,master=null,noiseBuf=null,WAVES=null,pluckCache=new Map(),activeSources=[],playToken=0;
+function ensureAudio(){
+  if(actx){if(actx.state==="suspended")actx.resume();return;}
+  actx=new (window.AudioContext||window.webkitAudioContext)();
+  const comp=actx.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=4;
+  master=actx.createGain();master.gain.value=0.85;master.connect(comp);comp.connect(actx.destination);
+}
+function freqOf(m){return 440*Math.pow(2,(m-69)/12);} // 小数midiで微分音OK
+function getNoise(){if(noiseBuf)return noiseBuf;const sr=actx.sampleRate;noiseBuf=actx.createBuffer(1,sr,sr);const d=noiseBuf.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf;}
+function getWaves(){if(WAVES)return WAVES;const pw=a=>{const re=new Float32Array(a.length+1),im=new Float32Array(a.length+1);a.forEach((v,i)=>im[i+1]=v);return actx.createPeriodicWave(re,im);};
+  WAVES={zurna:pw([1,0.9,1,0.8,0.7,0.6,0.45,0.3,0.2,0.12]),ney:pw([1,0.12,0.05]),erhu:pw([1,0.7,0.5,0.35,0.25,0.16,0.1])};return WAVES;}
+function pluckBuffer(freq,decay){
+  const key=Math.round(freq*10)+"_"+decay;
+  if(pluckCache.has(key))return pluckCache.get(key);
+  const sr=actx.sampleRate,N=Math.max(2,Math.round(sr/freq)),len=Math.floor(sr*decay),buf=actx.createBuffer(1,len,sr),d=buf.getChannelData(0);
+  for(let i=0;i<N;i++)d[i]=Math.random()*2-1;
+  const damp=0.5-(2.0/decay)*0.001; // decay長→減衰ゆるい
+  for(let i=N;i<len;i++)d[i]=(0.5-0.002)*(d[i-N]+d[i-N+1]);
+  pluckCache.set(key,buf);return buf;
+}
+function mkEnv(t,dur,atk,rel,peak){const g=actx.createGain();const tEnd=t+Math.max(dur,atk+0.02);
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+atk);g.gain.setValueAtTime(peak,tEnd-0.02);g.gain.linearRampToValueAtTime(0.0001,tEnd+rel);return {g,stopAt:tEnd+rel+0.05};}
+function mkVib(o,f,t,stop,rate,depth){const lfo=actx.createOscillator();lfo.frequency.value=rate;const vg=actx.createGain();vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(f*depth,t+0.2);lfo.connect(vg);vg.connect(o.frequency);lfo.start(t);lfo.stop(stop);activeSources.push(lfo);}
+function pluck(freq,t,dur,decay,vol,lp){
+  const src=actx.createBufferSource();src.buffer=pluckBuffer(freq,decay);
+  const g=actx.createGain();g.gain.value=vol;
+  let node=src;
+  if(lp){const f=actx.createBiquadFilter();f.type="lowpass";f.frequency.value=lp;src.connect(f);f.connect(g);}
+  else src.connect(g);
+  g.connect(master);src.start(t);activeSources.push(src);
+}
+function sustain(waveId,freq,t,dur,peak,lp,vibR,vibD){
+  const env=mkEnv(t,dur,0.04,0.08,peak);
+  const o=actx.createOscillator();o.setPeriodicWave(getWaves()[waveId]);o.frequency.value=freq;o.start(t);o.stop(env.stopAt);activeSources.push(o);
+  let node=o;
+  if(lp){const f=actx.createBiquadFilter();f.type="bandpass";f.frequency.value=lp;f.Q.value=1.2;o.connect(f);f.connect(env.g);}
+  else o.connect(env.g);
+  if(vibR&&dur>0.18)mkVib(o,freq,t,env.stopAt,vibR,vibD);
+  env.g.connect(master);
+}
+function breath(freq,t,dur,vol){ // ネイ：正弦＋ノイズ
+  const env=mkEnv(t,dur,0.05,0.1,vol);
+  const o=actx.createOscillator();o.type="sine";o.frequency.value=freq;o.start(t);o.stop(env.stopAt);activeSources.push(o);o.connect(env.g);
+  const n=actx.createBufferSource();n.buffer=getNoise();n.loop=true;const nf=actx.createBiquadFilter();nf.type="bandpass";nf.frequency.value=freq*2;nf.Q.value=4;const ng=actx.createGain();ng.gain.value=0.06*vol;n.connect(nf);nf.connect(ng);ng.connect(env.g);n.start(t);n.stop(env.stopAt);activeSources.push(n);
+  if(getWaves&&dur>0.2)mkVib(o,freq,t,env.stopAt,5,0.006);
+  env.g.connect(master);
+}
+function playInst(id,midi,t,dur,vol){
+  vol=(vol===undefined)?1:vol;const f=freqOf(midi);
+  switch(id){
+    case"koto": pluck(f,t,dur,1.6,0.7*vol,4500);break;
+    case"pipa": pluck(f,t,dur,0.9,0.7*vol,5500);break;
+    case"dutar":pluck(f,t,dur,1.3,0.6*vol,2600);break;
+    case"oud":  pluck(f,t,dur,1.2,0.7*vol,2200);break;
+    case"piano":pluck(f,t,dur,1.5,0.6*vol,6000);break;
+    case"santur":pluck(f,t,dur,0.7,0.5*vol,7000);pluck(f,t+0.05,dur,0.6,0.35*vol,7000);break;
+    case"erhu": sustain("erhu",f,t,dur,0.32*vol,1500,6,0.01);break;
+    case"zurna":sustain("zurna",f,t,dur,0.3*vol,1700,6.5,0.012);break;
+    case"ney":  breath(f,t,dur,0.4*vol);break;
+    default:    pluck(f,t,dur,1.2,0.6*vol,4000);
+  }
+}
+// 打楽器（ジャニサリー）
+function davul(t,vol){ // 大太鼓
+  const o=actx.createOscillator();o.type="sine";o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(45,t+0.18);
+  const g=actx.createGain();g.gain.setValueAtTime(0.9*vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);
+  o.connect(g);g.connect(master);o.start(t);o.stop(t+0.3);activeSources.push(o);
+  const n=actx.createBufferSource();n.buffer=getNoise();const nf=actx.createBiquadFilter();nf.type="lowpass";nf.frequency.value=300;const ng=actx.createGain();ng.gain.setValueAtTime(0.5*vol,t);ng.gain.exponentialRampToValueAtTime(0.001,t+0.1);n.connect(nf);nf.connect(ng);ng.connect(master);n.start(t);n.stop(t+0.12);activeSources.push(n);
+}
+function zil(t,vol){ // シンバル
+  const n=actx.createBufferSource();n.buffer=getNoise();const hp=actx.createBiquadFilter();hp.type="highpass";hp.frequency.value=5000;const g=actx.createGain();g.gain.setValueAtTime(0.4*vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);n.connect(hp);hp.connect(g);g.connect(master);n.start(t);n.stop(t+0.3);activeSources.push(n);
+}
+function stopAll(){playToken++;activeSources.forEach(s=>{try{s.stop();}catch(e){}});activeSources=[];}
+
+/* ============ 旋律再生（短いので一括スケジュール） ============ */
+function playMelody(notes,inst,bpm,opts){
+  opts=opts||{};ensureAudio();stopAll();
+  const my=playToken;const spu=(60/bpm)/4;const t0=actx.currentTime+0.12;
+  let end=0;
+  notes.forEach(n=>{const[s,d,m]=n;playInst(inst,m,t0+s*spu,d*spu*0.95,opts.vol||1);end=Math.max(end,s+d);});
+  if(opts.perc){ // メフテル：打楽器を重ねる
+    for(let u=0;u<end;u+=4){davul(t0+u*spu,1);} // 強拍に大太鼓
+    for(let u=2;u<end;u+=4){zil(t0+u*spu,1);davul(t0+u*spu,0.5);} // 裏にシンバル
+  }
+  if(opts.onEnd){const ms=(end*spu+0.3)*1000;setTimeout(()=>{if(my===playToken)opts.onEnd();},ms);}
+  return end*spu;
+}
+function playScale(key){
+  ensureAudio();stopAll();const sc=SCALES[key];const t0=actx.currentTime+0.1;const step=0.36;
+  const seq=sc.off.concat(sc.off.slice(0,-1).reverse());
+  seq.forEach((o,i)=>{playInst("ney",sc.root+o,t0+i*step,step*0.92,0.9);});
+}
+
+/* ============ タブ ============ */
+const tabs=[...document.querySelectorAll(".tab")],pages=[...document.querySelectorAll(".page")];
+tabs.forEach(t=>t.addEventListener("click",()=>{const i=+t.dataset.p;tabs.forEach(x=>x.classList.toggle("active",x===t));pages.forEach((pg,j)=>pg.classList.toggle("show",j===i));stopAll();setClimaxBtns(false);}));
+
+/* ============ ① 地図 ============ */
+const svg=document.getElementById("mapsvg");
+const SVGNS="http://www.w3.org/2000/svg";
+// ルート（東→西の点線）
+const path=document.createElementNS(SVGNS,"path");
+let dStr="M "+REGIONS[0].x+" "+REGIONS[0].y;
+for(let i=1;i<REGIONS.length;i++){const a=REGIONS[i-1],b=REGIONS[i];const mx=(a.x+b.x)/2;dStr+=" Q "+mx+" "+((a.y+b.y)/2-40)+" "+b.x+" "+b.y;}
+path.setAttribute("d",dStr);path.setAttribute("class","routepath");svg.appendChild(path);
+// マーカー
+const COLORS=["#e8453c","#e87d3c","#d9a441","#36b06a","#3a82d6","#9b59b6"];
+REGIONS.forEach((r,i)=>{
+  const g=document.createElementNS(SVGNS,"g");g.setAttribute("class","stop-dot");g.dataset.i=i;
+  g.setAttribute("transform","translate("+r.x+","+r.y+")");
+  const outer=document.createElementNS(SVGNS,"circle");outer.setAttribute("r",26);outer.setAttribute("class","outer");outer.setAttribute("fill",COLORS[i]);outer.setAttribute("opacity","0.92");g.appendChild(outer);
+  const t=document.createElementNS(SVGNS,"text");t.setAttribute("class","stop-label");t.setAttribute("dy","7");t.textContent=r.flag;g.appendChild(t);
+  const lbl=document.createElementNS(SVGNS,"text");lbl.setAttribute("class","stop-label");lbl.setAttribute("dy","48");lbl.setAttribute("font-size","17");lbl.textContent=r.name;g.appendChild(lbl);
+  g.addEventListener("click",()=>selectRegion(i));
+  svg.appendChild(g);
+});
+function selectRegion(i){
+  document.querySelectorAll(".stop-dot").forEach((g,j)=>g.classList.toggle("active",j===i));
+  const r=REGIONS[i],sc=SCALES[r.scale];
+  let html='<div class="row" style="align-items:center;gap:8px;"><span class="flag">'+r.flag+'</span><b style="font-size:17px;color:var(--acc2)">'+r.name+'</b></div>';
+  html+='<div style="font-size:13px;margin:6px 0;">'+r.ds+'</div>';
+  html+='<div class="chips"><span class="chip scale">音階：'+sc.name.replace(/（.*/,"")+(sc.off.some(o=>o%1)?' <span class="micro">微分音あり</span>':'')+'</span></div>';
+  html+='<div class="chips">';
+  r.insts.forEach(ins=>{html+='<button class="inst-btn" data-inst="'+ins[0]+'">🎵 '+ins[1]+'</button>';});
+  html+='<button class="inst-btn" data-scalekey="'+r.scale+'">🎼 音階を聴く</button>';
+  if(r.piece)html+='<button class="inst-btn" data-piece="'+r.piece[0]+'" style="border-color:var(--acc);color:var(--acc2)">▶ '+r.piece[1]+'</button>';
+  html+='</div>';
+  const det=document.getElementById("regionDetail");det.innerHTML=html;
+  det.querySelectorAll("[data-inst]").forEach(b=>b.onclick=()=>playInstDemo(b.dataset.inst,r.scale));
+  det.querySelectorAll("[data-scalekey]").forEach(b=>b.onclick=()=>playScale(b.dataset.scalekey));
+  det.querySelectorAll("[data-piece]").forEach(b=>b.onclick=()=>playPiece(b.dataset.piece));
+}
+function playInstDemo(inst,scaleKey){ // その楽器で音階を少し弾く
+  ensureAudio();stopAll();const sc=SCALES[scaleKey];const t0=actx.currentTime+0.1;const step=(inst==="erhu"||inst==="zurna"||inst==="ney")?0.4:0.3;
+  sc.off.forEach((o,i)=>playInst(inst,sc.root+o,t0+i*step,step*0.9,1));
+}
+function playPiece(id){
+  if(id==="rokudan")playMelody(ROKUDAN,"koto",60);
+  else if(id==="mehter")playMelody(MEHTER,"zurna",100,{perc:true});
+  else if(id==="turca")playMelody(TURCA,"piano",112);
+}
+selectRegion(0);
+
+/* ============ ② トルコの音 ============ */
+function setClimaxBtns(on){const s=document.getElementById("stopClimax");if(s)s.disabled=!on;}
+document.getElementById("playMehter").onclick=()=>{playMelody(MEHTER,"zurna",100,{perc:true,onEnd:()=>setClimaxBtns(false)});setClimaxBtns(true);};
+document.getElementById("playTurca").onclick=()=>{playMelody(TURCA,"piano",112,{onEnd:()=>setClimaxBtns(false),turkperc:true});
+  // トルコ行進曲にも“トルコ風”打楽器を軽く重ねる
+  ensureAudio();const spu=(60/112)/4,t0=actx.currentTime+0.12;for(let u=0;u<64;u+=4){davul(t0+u*spu,0.5);}for(let u=2;u<64;u+=4){zil(t0+u*spu,0.4);}
+  setClimaxBtns(true);};
+document.getElementById("stopClimax").onclick=()=>{stopAll();setClimaxBtns(false);};
+
+/* ============ ③ 音階くらべ ============ */
+const scaleList=document.getElementById("scaleList");
+Object.keys(SCALES).forEach(k=>{
+  const sc=SCALES[k];const div=document.createElement("div");div.className="scalebar";
+  div.innerHTML='<div style="flex:1"><div class="nm">'+sc.name+(sc.off.some(o=>o%1)?' <span class="micro">微分音</span>':'')+'</div><div class="ds">'+sc.ds+'</div></div><span class="btn sec">▶ 聴く</span>';
+  div.onclick=()=>playScale(k);
+  scaleList.appendChild(div);
+});
+
+/* ============ ④ クイズ ============ */
+const QUIZ_POOL=REGIONS.map(r=>({id:r.id,name:r.name,flag:r.flag,inst:r.insts[0][0],scale:r.scale}));
+let score=0,qtotal=0,curQ=null,answered=false;
+function newQuestion(){
+  answered=false;document.getElementById("qfeedback").textContent="";document.getElementById("qnext").style.display="none";document.getElementById("qreplay").disabled=true;
+  const ans=QUIZ_POOL[Math.floor(Math.random()*QUIZ_POOL.length)];
+  // 選択肢4つ
+  const opts=[ans];while(opts.length<4){const c=QUIZ_POOL[Math.floor(Math.random()*QUIZ_POOL.length)];if(!opts.includes(c))opts.push(c);}
+  opts.sort(()=>Math.random()-0.5);
+  curQ={ans,opts,mode:Math.random()<0.5?"inst":"scale"};
+  const box=document.getElementById("qopts");box.innerHTML="";
+  opts.forEach(o=>{const b=document.createElement("div");b.className="qopt";b.textContent=o.flag+" "+o.name;b.onclick=()=>answer(o,b);box.appendChild(b);});
+}
+function playQ(){if(!curQ)return;document.getElementById("qreplay").disabled=false;
+  if(curQ.mode==="inst")playInstDemo(curQ.ans.inst,curQ.ans.scale);else playScale(curQ.ans.scale);}
+function answer(o,el){
+  if(answered)return;answered=true;qtotal++;
+  const correct=o.id===curQ.ans.id;
+  if(correct){score++;el.classList.add("correct");document.getElementById("qfeedback").textContent="正解！ "+curQ.ans.flag+" "+curQ.ans.name;}
+  else{el.classList.add("wrong");document.getElementById("qfeedback").textContent="おしい！ 正解は "+curQ.ans.flag+" "+curQ.ans.name;
+    [...document.getElementById("qopts").children].forEach(c=>{if(c.textContent.includes(curQ.ans.name))c.classList.add("correct");});}
+  document.getElementById("score").textContent=score;document.getElementById("qtotal").textContent=qtotal;
+  document.getElementById("qnext").style.display="";
+}
+document.getElementById("qplay").onclick=()=>{if(!curQ)newQuestion();playQ();};
+document.getElementById("qreplay").onclick=playQ;
+document.getElementById("qnext").onclick=()=>{newQuestion();playQ();};
+
+/* ============ ⑤ ワークシート ============ */
+document.getElementById("saveWS").onclick=()=>{
+  const c=document.getElementById("wsCanvas"),x=c.getContext("2d");
+  x.fillStyle="#fdf6e9";x.fillRect(0,0,c.width,c.height);
+  x.fillStyle="#2a1d12";x.fillRect(0,0,c.width,66);
+  x.fillStyle="#efc468";x.font="bold 28px 'Yu Gothic UI',sans-serif";x.fillText("音楽でシルクロードの旅　ワークシート",28,43);
+  x.fillStyle="#333";x.font="16px 'Yu Gothic UI',sans-serif";
+  const name=document.getElementById("wsName").value||"（名前）";x.fillText("名前： "+name,28,100);
+  const Q=[["1. いちばん印象に残った地域の音は？ どんな響きだった？","ws1"],
+    ["2. 日本（六段）と中東・トルコの音階のちがいは？","ws2"],
+    ["3. 「トルコの音」がヨーロッパへ伝わった例から気づいたこと","ws3"]];
+  let y=140;
+  Q.forEach(q=>{x.fillStyle="#7a5c00";x.font="bold 17px 'Yu Gothic UI',sans-serif";y=wrap(x,q[0],28,y,840,24)+4;
+    x.fillStyle="#222";x.font="16px 'Yu Gothic UI',sans-serif";
+    (document.getElementById(q[1]).value||"").split("\n").forEach(ln=>{y=wrap(x,ln,40,y,810,24);});
+    x.strokeStyle="#ddd";for(let k=0;k<2;k++){y+=26;x.beginPath();x.moveTo(40,y);x.lineTo(860,y);x.stroke();}y+=20;});
+  x.fillStyle="#999";x.font="12px sans-serif";x.fillText("音楽でシルクロードの旅（中学校 音楽科 鑑賞）",28,c.height-18);
+  const a=document.createElement("a");a.download="シルクロード_ワークシート_"+name+".png";a.href=c.toDataURL("image/png");a.click();
+};
+function wrap(ctx,t,x,y,maxW,lh){if(!t)return y+lh;let line="";for(const ch of t){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,y);line=ch;y+=lh;}else line+=ch;}ctx.fillText(line,x,y);return y+lh;}
+</script>
+</body>
+</html>
