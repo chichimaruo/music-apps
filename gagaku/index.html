@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>雅楽 越天楽 体験ラボ</title>
+<style>
+:root{
+  --bg:#1c1730; --panel:#272040; --panel2:#322a52; --line:#473d6b;
+  --txt:#f1edfb; --sub:#b9b0d6; --acc:#c9a24a; --acc2:#e7c870;
+  --hichi:#e0533a; --ryu:#3aa6c9; --sho:#caa24a; --koto:#5bb06a; --uchi:#9b6bd6;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI",Meiryo,sans-serif;
+  background:linear-gradient(165deg,#1c1730,#241a38 55%,#2a2042);color:var(--txt);line-height:1.6;-webkit-text-size-adjust:100%;}
+header{text-align:center;padding:13px 12px 9px;background:linear-gradient(180deg,#34284f,#241a38);border-bottom:2px solid var(--acc);}
+header h1{margin:0;font-size:21px;letter-spacing:.06em;color:var(--acc2);}
+header .sub{font-size:11.5px;color:var(--sub);margin-top:2px;}
+.wrap{max-width:920px;margin:0 auto;padding:10px 12px 60px;}
+.tabs{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin:10px 0 4px;}
+.tab{flex:1 1 0;min-width:90px;padding:9px 6px;border-radius:11px 11px 0 0;background:var(--panel2);color:var(--sub);
+  border:1px solid var(--line);border-bottom:none;font-size:13px;font-weight:700;text-align:center;cursor:pointer;transition:.15s;user-select:none;}
+.tab.active{background:var(--panel);color:var(--acc2);box-shadow:inset 0 3px 0 var(--acc);}
+.tab small{display:block;font-weight:400;font-size:10px;opacity:.8;}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:0 0 14px 14px;padding:15px;margin-bottom:14px;}
+.page{display:none;}.page.show{display:block;animation:fade .25s;}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+h2.t{margin:0 0 4px;font-size:17px;color:var(--acc2);}
+.lead{font-size:13px;color:var(--sub);margin:0 0 12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;justify-content:center;padding:11px 18px;border-radius:11px;border:none;
+  cursor:pointer;font-size:15px;font-weight:700;background:var(--acc);color:#2b2208;transition:.12s;user-select:none;}
+.btn:active{transform:scale(.96);}
+.btn.sec{background:var(--panel2);color:var(--txt);border:1px solid var(--line);}
+.btn.stop{background:#b0432b;color:#fff;}
+.btn:disabled{opacity:.4;cursor:default;}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}.center{justify-content:center;}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px;}
+canvas{display:block;width:100%;background:#15101f;border-radius:10px;border:1px solid var(--line);}
+.parts{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:10px 0;}
+.ptog{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);cursor:pointer;font-size:13px;font-weight:700;}
+.ptog .sw{width:38px;height:22px;border-radius:11px;background:#444;position:relative;transition:.15s;flex:none;}
+.ptog .sw::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s;}
+.ptog.on .sw::after{left:18px;}
+.ptog .role{font-size:10px;color:var(--sub);font-weight:400;}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;margin:6px 0;}
+.legend span{display:inline-flex;align-items:center;gap:5px;}
+.dot{width:13px;height:13px;border-radius:3px;display:inline-block;}
+.aitake-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:8px 0;}
+.aitake{padding:14px 6px;border-radius:12px;border:2px solid var(--line);background:var(--panel2);cursor:pointer;text-align:center;transition:.12s;}
+.aitake:active{transform:scale(.95);}
+.aitake.lit{border-color:var(--acc);background:#3d3220;box-shadow:0 0 14px rgba(231,200,112,.4);}
+.aitake .nm{font-size:20px;font-weight:800;color:var(--acc2);}
+.aitake .rd{font-size:10px;color:var(--sub);margin-top:2px;}
+.imayo{font-size:17px;line-height:2;letter-spacing:.08em;text-align:center;}
+.imayo ruby rt{font-size:9px;color:var(--sub);}
+.imayo .pl{color:var(--acc2);font-weight:700;}
+.qopts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0;}
+.qopt{padding:13px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:14px;font-weight:700;cursor:pointer;text-align:center;}
+.qopt.correct{background:#2e6b3a;border-color:#4caf60;color:#fff;}.qopt.wrong{background:#7a2f24;border-color:#c0432b;color:#fff;}
+.bignum{font-size:30px;font-weight:800;color:var(--acc2);text-align:center;}
+textarea{width:100%;min-height:64px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px;font-size:13px;font-family:inherit;resize:vertical;}
+.fld{margin:10px 0;}.fld label{font-size:13px;font-weight:700;color:var(--acc2);display:block;margin-bottom:4px;}
+input.txt{font-size:15px;padding:7px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);}
+.hint{font-size:11px;color:var(--sub);}
+details{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0;}
+summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--acc2);}details p{font-size:12.5px;color:var(--sub);}
+a.yt{color:var(--acc2);font-size:12.5px;}.foot{text-align:center;font-size:11px;color:var(--sub);margin-top:16px;}
+.tempo{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--sub);}
+.tbtn{padding:4px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:12px;cursor:pointer;}
+.tbtn.on{background:var(--acc);color:#2b2208;border-color:var(--acc);}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎐 雅楽 越天楽 体験ラボ</h1>
+  <div class="sub">日本の宮廷音楽「雅楽」― 千年以上つづくオーケストラの響きを体験しよう</div>
+</header>
+<div class="wrap">
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-p="0">①三管を重ねる<small>合奏のしくみ</small></div>
+    <div class="tab" data-p="1">②笙の合竹<small>あの和音</small></div>
+    <div class="tab" data-p="2">③越天楽今様<small>歌でたどる</small></div>
+    <div class="tab" data-p="3">④まとめ<small>クイズ・WS</small></div>
+  </div>
+
+  <!-- ① 三管を重ねる -->
+  <section class="page show panel" id="p0">
+    <h2 class="t">① 三つの管楽器を重ねてみよう</h2>
+    <p class="lead">雅楽の合奏（管絃）は、<b>同じ旋律を楽器ごとに少しずつちがう形で重ねる</b>のが特徴（ヘテロフォニー）。スイッチで楽器を足したり消したりして、響きの変化を聴きとろう。</p>
+    <div class="legend" id="legend"></div>
+    <canvas id="cv" height="210"></canvas>
+    <div class="parts" id="parts"></div>
+    <div class="row center" style="margin-top:8px;">
+      <button class="btn" id="play">▶ 合奏を再生</button>
+      <button class="btn stop" id="stop" disabled>■ 停止</button>
+      <span class="tempo">速さ<span class="tbtn on" data-r="1">ふつう</span><span class="tbtn" data-r="1.6">速く</span></span>
+    </div>
+    <div class="hint" style="margin-top:6px;">★ まず篳篥（ひちりき）だけ → 龍笛（りゅうてき）を足す → 笙（しょう）を足す、の順で聴くと重なり方がよく分かります。</div>
+    <details><summary>三管（さんかん）ってなに？</summary>
+      <p><b>篳篥</b>…主旋律をうけもつ、力強く鼻にかかった音。<b>龍笛</b>…主旋律を飾る、息まじりの横笛。<b>笙</b>…「合竹（あいたけ）」という和音で、天から差す光のような持続音をそえる。これに<b>弾きもの</b>（楽箏・楽琵琶）と<b>打ちもの</b>（太鼓など）が加わります。</p>
+    </details>
+  </section>
+
+  <!-- ② 笙の合竹 -->
+  <section class="page panel" id="p1">
+    <h2 class="t">② 笙（しょう）の「合竹（あいたけ）」を鳴らそう</h2>
+    <p class="lead">笙は17本の竹をたばねた楽器。息を吸っても吐いても鳴り、<b>5〜6音を同時に重ねた和音「合竹」</b>を出します。これが雅楽の“きらめく持続音”の正体。タップして聴き比べよう。</p>
+    <div class="aitake-grid" id="aitakeGrid"></div>
+    <div class="hint" style="text-align:center;">★ どれも、近い音と遠い音が混ざった独特のひびき。長くのばして、にじむような音を感じよう。</div>
+  </section>
+
+  <!-- ③ 越天楽今様 -->
+  <section class="page panel" id="p2">
+    <h2 class="t">③ 越天楽の旋律を「越天楽今様」でたどろう</h2>
+    <p class="lead">越天楽の旋律に歌詞をつけたものが<b>「越天楽今様（いまよう）」</b>。今でも歌いつがれています。旋律を聴きながら、言葉でたどってみよう。</p>
+    <div class="card" style="margin-bottom:10px;">
+      <div class="imayo" id="imayo"></div>
+    </div>
+    <div class="row center">
+      <button class="btn" id="playImayo">▶ 旋律を聴く（篳篥）</button>
+      <button class="btn sec" id="playKoto">🎵 箏で聴く</button>
+      <button class="btn stop" id="stopImayo" disabled>■ 停止</button>
+    </div>
+    <div class="hint" style="margin-top:8px;">★ 拍が一定でなく、ゆったりと息で進む時間の流れも雅楽の特徴です。</div>
+  </section>
+
+  <!-- ④ まとめ -->
+  <section class="page panel" id="p3">
+    <h2 class="t">④ まとめ・クイズ・ワークシート</h2>
+    <div class="card" style="margin-bottom:10px;">
+      <b style="color:var(--acc2);font-size:13px;">学習のポイント</b>
+      <ul style="font-size:12.5px;color:var(--sub);margin:6px 0 0;padding-left:20px;">
+        <li>雅楽＝1000年以上つづく日本の宮廷音楽。越天楽は代表曲（管絃）</li>
+        <li>三管（篳篥・龍笛・笙）が同じ旋律を少しずつちがう形で重ねる＝ヘテロフォニー</li>
+        <li>笙の「合竹」が、のびやかでにじむような響きをつくる</li>
+        <li>拍が一定でなく、息でゆったり進む</li>
+      </ul>
+    </div>
+    <div class="card" style="margin-bottom:10px;">
+      <div class="hint" style="text-align:center;margin-bottom:2px;">聴き分けクイズ　スコア</div>
+      <div class="bignum"><span id="score">0</span> / <span id="qtotal">0</span></div>
+      <div class="row center" style="margin-top:6px;"><button class="btn" id="qplay">🔊 音を聴く</button><button class="btn sec" id="qreplay" disabled>もう一度</button></div>
+      <div class="qopts" id="qopts"></div>
+      <div id="qfeedback" class="hint" style="text-align:center;min-height:18px;"></div>
+      <div class="row center"><button class="btn sec" id="qnext" style="display:none;">次へ ▶</button></div>
+    </div>
+    <div class="fld"><label>1. 雅楽（越天楽）を聴いて、印象に残った響きや楽器は？</label><textarea id="ws1"></textarea></div>
+    <div class="fld"><label>2. 三管（篳篥・龍笛・笙）が重なると、ひびきはどう変わった？</label><textarea id="ws2"></textarea></div>
+    <div class="fld"><label>3. 雅楽の「時間の流れ（拍）」は、ふだんの音楽とどうちがう？</label><textarea id="ws3"></textarea></div>
+    <div class="fld"><label>名前</label><input class="txt" id="wsName" type="text" placeholder="クラス・名前" style="width:180px;"></div>
+    <div class="row center">
+      <button class="btn" id="saveWS">🖼 シートを保存</button>
+      <a class="yt" href="https://www.youtube.com/results?search_query=雅楽+越天楽+管絃" target="_blank" rel="noopener">▶ 本物の越天楽をYouTubeで見る</a>
+    </div>
+    <canvas id="wsCanvas" width="900" height="1080" style="display:none;"></canvas>
+  </section>
+  <div class="foot">中学校 音楽科 鑑賞教材アプリ ／ 音源：Web Audio による雅楽楽器の合成（旋律は越天楽今様を採譜）<br><span style="opacity:.6">build v1</span></div>
+</div>
+
+<script>
+"use strict";
+const MEL=[[0,4,62],[4,4,66],[8,4,71],[12,4,69],[16,4,64],[20,4,67],[24,4,69],[28,4,64],[32,4,61],[36,4,62],[40,4,69],[44,4,64],[48,4,66],[52,4,71],[56,4,66],[60,4,64],[64,4,62],[68,4,66],[72,4,71],[76,4,69],[80,4,64],[84,4,69],[88,4,67],[92,4,62],[96,4,69],[100,4,64],[104,4,62],[108,4,66]];
+// 合竹（あいたけ）の例：低音＋律のクラスター（雰囲気を再現）
+const AITAKE=[
+  {nm:"乞",rd:"こつ",notes:[57,64,69,71,74,76]},
+  {nm:"一",rd:"いち",notes:[59,66,69,71,74,78]},
+  {nm:"工",rd:"こう",notes:[64,69,71,76,78]},
+  {nm:"凢",rd:"ぼう",notes:[62,69,74,76,81]},
+  {nm:"十",rd:"じゅう",notes:[67,71,74,79,81]},
+  {nm:"美",rd:"び",notes:[66,71,73,78,81]}
+];
+// 越天楽今様 歌詞（春の弥生）
+const IMAYO=[["春","はる"],["の","",1],["弥","や"],["生","よい"],["の","",1],["／"],
+  ["曙","あけぼの"],["に","",1],["／"],
+  ["四","よ"],["方","も"],["の","",1],["山","やま"],["辺","べ"],["を","",1],["見","み"],["わたせば","",1]];
+
+/* ===== Web Audio ===== */
+let actx=null,master=null,noiseBuf=null,activeSources=[],playToken=0;
+function ensureAudio(){if(actx){if(actx.state==="suspended")actx.resume();return;}
+  actx=new (window.AudioContext||window.webkitAudioContext)();const comp=actx.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=4;
+  master=actx.createGain();master.gain.value=0.82;master.connect(comp);comp.connect(actx.destination);}
+function freqOf(m){return 440*Math.pow(2,(m-69)/12);}
+function getNoise(){if(noiseBuf)return noiseBuf;const sr=actx.sampleRate;noiseBuf=actx.createBuffer(1,sr,sr);const d=noiseBuf.getChannelData(0);for(let i=0;i<sr;i++)d[i]=Math.random()*2-1;return noiseBuf;}
+function env(t,dur,atk,rel,peak){const g=actx.createGain();const e=t+Math.max(dur,atk+0.02);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(peak,t+atk);g.gain.setValueAtTime(peak,e-0.03);g.gain.linearRampToValueAtTime(0.0001,e+rel);return{g,stop:e+rel+0.05};}
+function vib(o,f,t,stop,rate,depth,delay){const l=actx.createOscillator();l.frequency.value=rate;const vg=actx.createGain();vg.gain.setValueAtTime(0,t);vg.gain.setValueAtTime(0,t+delay);vg.gain.linearRampToValueAtTime(f*depth,t+delay+0.2);l.connect(vg);vg.connect(o.frequency);l.start(t);l.stop(stop);activeSources.push(l);}
+// 篳篥：ダブルリード（鼻にかかる）＋塩梅（音程の入り）
+function hichiriki(midi,t,dur,vol,dest){vol=vol||1;const f=freqOf(midi);const e=env(t,dur,0.06,0.12,0.34*vol);
+  const o=actx.createOscillator();o.type="sawtooth";o.frequency.setValueAtTime(f*0.97,t);o.frequency.linearRampToValueAtTime(f,t+0.12);o.start(t);o.stop(e.stop);activeSources.push(o);
+  const bp=actx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=1150;bp.Q.value=4;
+  const lp=actx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2600;
+  o.connect(bp);bp.connect(lp);lp.connect(e.g);if(dur>0.4)vib(o,f,t,e.stop,5.5,0.012,0.3);e.g.connect(dest||master);}
+// 龍笛：息まじりの横笛
+function ryuteki(midi,t,dur,vol,dest){vol=vol||1;const f=freqOf(midi);const e=env(t,dur,0.05,0.14,0.3*vol);
+  const o=actx.createOscillator();o.type="sine";o.frequency.value=f;o.start(t);o.stop(e.stop);activeSources.push(o);o.connect(e.g);
+  const o2=actx.createOscillator();o2.type="triangle";o2.frequency.value=f*2;const g2=actx.createGain();g2.gain.value=0.12;o2.connect(g2);g2.connect(e.g);o2.start(t);o2.stop(e.stop);activeSources.push(o2);
+  const n=actx.createBufferSource();n.buffer=getNoise();n.loop=true;const nf=actx.createBiquadFilter();nf.type="bandpass";nf.frequency.value=f*2.5;nf.Q.value=3;const ng=actx.createGain();ng.gain.value=0.07*vol;n.connect(nf);nf.connect(ng);ng.connect(e.g);n.start(t);n.stop(e.stop);activeSources.push(n);
+  if(dur>0.4)vib(o,f,t,e.stop,5,0.008,0.3);e.g.connect(dest||master);}
+// 笙：合竹（持続するにじむ和音）
+function shoNote(midi,t,dur,vol,dest){vol=vol||1;const f=freqOf(midi);const e=env(t,dur,0.25,0.4,0.12*vol);
+  [[1,0],[1,6],[2,0]].forEach(([mult,cents])=>{const o=actx.createOscillator();o.type=mult===2?"triangle":"sine";o.frequency.value=f*mult;if(cents)o.detune.value=cents;const g=actx.createGain();g.gain.value=mult===2?0.25:1;o.connect(g);g.connect(e.g);o.start(t);o.stop(e.stop);activeSources.push(o);});
+  e.g.connect(dest||master);}
+function shoChord(notes,t,dur,vol,dest){notes.forEach(m=>shoNote(m,t,dur,(vol||1)*0.8,dest));}
+// 楽箏：はじく弦
+function koto(midi,t,vol,dest){const f=freqOf(midi);const sr=actx.sampleRate,N=Math.max(2,Math.round(sr/f)),len=Math.floor(sr*1.6),buf=actx.createBuffer(1,len,sr),d=buf.getChannelData(0);for(let i=0;i<N;i++)d[i]=Math.random()*2-1;for(let i=N;i<len;i++)d[i]=0.498*(d[i-N]+d[i-N+1]);const s=actx.createBufferSource();s.buffer=buf;const g=actx.createGain();g.gain.value=0.5*(vol||1);const lp=actx.createBiquadFilter();lp.type="lowpass";lp.frequency.value=3800;s.connect(lp);lp.connect(g);g.connect(dest||master);s.start(t);activeSources.push(s);}
+// 打ちもの
+function taiko(t,vol,dest){const o=actx.createOscillator();o.type="sine";o.frequency.setValueAtTime(95,t);o.frequency.exponentialRampToValueAtTime(45,t+0.2);const g=actx.createGain();g.gain.setValueAtTime(0.85*(vol||1),t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);o.connect(g);g.connect(dest||master);o.start(t);o.stop(t+0.35);activeSources.push(o);}
+function shoko(t,vol,dest){const o=actx.createOscillator();o.type="square";o.frequency.value=1800;const g=actx.createGain();g.gain.setValueAtTime(0.18*(vol||1),t);g.gain.exponentialRampToValueAtTime(0.001,t+0.25);const bp=actx.createBiquadFilter();bp.type="bandpass";bp.frequency.value=2200;bp.Q.value=8;o.connect(bp);bp.connect(g);g.connect(dest||master);o.start(t);o.stop(t+0.3);activeSources.push(o);}
+function stopAll(){playToken++;activeSources.forEach(s=>{try{s.stop();}catch(e){}});activeSources=[];}
+
+/* ===== タブ ===== */
+const tabs=[...document.querySelectorAll(".tab")],pages=[...document.querySelectorAll(".page")];
+tabs.forEach(t=>t.addEventListener("click",()=>{const i=+t.dataset.p;tabs.forEach(x=>x.classList.toggle("active",x===t));pages.forEach((pg,j)=>pg.classList.toggle("show",j===i));stopEverything();}));
+
+/* ===== ① 三管を重ねる ===== */
+const PARTS=[
+  {id:"hichiriki",nm:"篳篥",role:"主旋律",col:"#e0533a"},
+  {id:"ryuteki",nm:"龍笛",role:"旋律を飾る",col:"#3aa6c9"},
+  {id:"sho",nm:"笙",role:"合竹（和音）",col:"#caa24a"},
+  {id:"koto",nm:"楽箏",role:"弾きもの",col:"#5bb06a"},
+  {id:"uchi",nm:"打ちもの",role:"太鼓・鉦鼓",col:"#9b6bd6"}
+];
+let on={hichiriki:1,ryuteki:1,sho:1,koto:1,uchi:1};
+const legend=document.getElementById("legend");
+PARTS.slice(0,3).forEach(p=>{const s=document.createElement("span");s.innerHTML='<span class="dot" style="background:'+p.col+'"></span>'+p.nm;legend.appendChild(s);});
+const partsBox=document.getElementById("parts");
+PARTS.forEach(p=>{const d=document.createElement("div");d.className="ptog on";d.dataset.id=p.id;
+  d.innerHTML='<span class="sw" style="background:'+p.col+'"></span><span>'+p.nm+'<span class="role"> ／ '+p.role+'</span></span>';
+  d.onclick=()=>{on[p.id]=on[p.id]?0:1;d.classList.toggle("on",!!on[p.id]);if(player.on&&player.g&&player.g[p.id])player.g[p.id].gain.setTargetAtTime(on[p.id]?1:0,actx.currentTime,0.02);drawCv();};
+  partsBox.appendChild(d);});
+const cv=document.getElementById("cv");
+const MELLO=Math.min(...MEL.map(n=>n[2]))-2,MELHI=Math.max(...MEL.map(n=>n[2]))+2;
+const TOTU=MEL[MEL.length-1][0]+MEL[MEL.length-1][1];
+function drawCv(playU){const ctx=cv.getContext("2d");cv.width=cv.clientWidth||640;const W=cv.width,H=cv.height,pad=6;ctx.clearRect(0,0,W,H);
+  const xOf=u=>pad+u/TOTU*(W-2*pad),yOf=m=>{const r=(m-MELLO)/(MELHI-MELLO);return H-pad-r*(H-2*pad);};
+  // 篳篥(主旋律), 龍笛(オクターブ上・飾り), 笙(帯)
+  if(on.sho){MEL.forEach((n,i)=>{if(i%2)return;const x0=xOf(n[0]),x1=xOf(n[0]+8);ctx.fillStyle="rgba(202,162,74,0.13)";ctx.fillRect(x0,0,x1-x0,H);});}
+  [["hichiriki",0,"#e0533a"],["ryuteki",12,"#3aa6c9"]].forEach(([id,off,col])=>{if(!on[id])return;ctx.strokeStyle=col;ctx.lineWidth=3;ctx.beginPath();MEL.forEach((n,i)=>{const x=xOf(n[0]+4),y=yOf(n[2]+(off?0:0))-(off?14:0);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});ctx.stroke();
+    MEL.forEach(n=>{const x=xOf(n[0]+4),y=yOf(n[2])-(off?14:0);ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,4,0,7);ctx.fill();});});
+  if(on.koto){ctx.fillStyle="#5bb06a";MEL.forEach((n,i)=>{if(i%2)return;const x=xOf(n[0]+1);ctx.fillRect(x-2,yOf(n[2]-12)-3,4,6);});}
+  if(playU!=null){const x=xOf(playU);ctx.strokeStyle="#fff";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+}
+let rate1=1;
+document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{document.querySelectorAll("[data-r]").forEach(x=>x.classList.remove("on"));b.classList.add("on");rate1=+b.dataset.r;});
+let player={on:false,raf:null,g:null,startT:0,spu:0};
+function startEnsemble(){ensureAudio();stopEverything();
+  const go=()=>{player.on=true;const spu=(0.30/rate1);player.spu=spu;const t0=actx.currentTime+0.15;player.startT=t0;
+    player.g={};PARTS.forEach(p=>{const g=actx.createGain();g.gain.value=on[p.id]?1:0;g.connect(master);player.g[p.id]=g;});
+    // 篳篥＝主旋律、龍笛＝オクターブ上＋装飾(前打音)、笙＝合竹(2音ごと)、楽箏＝拍頭、打＝句頭
+    MEL.forEach((n,i)=>{const[s,d,m]=n;const ts=t0+s*spu,dur=d*spu*0.95;
+      hichiriki(m,ts,dur,1,player.g.hichiriki);
+      // 龍笛：前打音＋本音(オクターブ上)
+      ryuteki(m+12+ (i%3===0?2:0), ts, spu*1.0, 0.8, player.g.ryuteki);
+      ryuteki(m+12, ts+spu*1.0, dur-spu*1.0, 1, player.g.ryuteki);
+      if(i%2===0) koto(m-12, ts, 1, player.g.koto);
+    });
+    // 笙：2音(8単位)ごとに合竹
+    for(let i=0;i<MEL.length;i+=2){const ai=AITAKE[(i/2)%AITAKE.length];shoChord(ai.notes,t0+MEL[i][0]*spu,(MEL[i][1]+ (MEL[i+1]?MEL[i+1][1]:0))*spu,0.9,player.g.sho);}
+    // 打ちもの：4音ごとに太鼓＋鉦鼓
+    for(let i=0;i<MEL.length;i+=4){taiko(t0+MEL[i][0]*spu,1,player.g.uchi);shoko(t0+MEL[i][0]*spu+spu*2,0.8,player.g.uchi);}
+    const loop=()=>{if(!player.on)return;const u=(actx.currentTime-player.startT)/player.spu;drawCv(u);if(u>TOTU+4){stopEverything();setBtns(false);drawCv();return;}player.raf=requestAnimationFrame(loop);};player.raf=requestAnimationFrame(loop);
+  };
+  if(actx.state!=="running")actx.resume().then(go).catch(go);else go();
+}
+function setBtns(p){const a=document.getElementById("play"),b=document.getElementById("stop");if(a)a.disabled=p;if(b)b.disabled=!p;}
+function stopEverything(){player.on=false;if(player.raf)cancelAnimationFrame(player.raf);stopAll();setBtns(false);const si=document.getElementById("stopImayo");if(si)si.disabled=true;}
+document.getElementById("play").onclick=()=>{startEnsemble();setBtns(true);};
+document.getElementById("stop").onclick=()=>{stopEverything();drawCv();};
+
+/* ===== ② 笙の合竹 ===== */
+const ag=document.getElementById("aitakeGrid");
+AITAKE.forEach((a,i)=>{const d=document.createElement("div");d.className="aitake";d.innerHTML='<div class="nm">'+a.nm+'</div><div class="rd">'+a.rd+'</div>';
+  d.onclick=()=>{ensureAudio();stopAll();[...ag.children].forEach(c=>c.classList.remove("lit"));d.classList.add("lit");shoChord(a.notes,actx.currentTime+0.03,2.6,1.1);setTimeout(()=>d.classList.remove("lit"),2600);};
+  ag.appendChild(d);});
+
+/* ===== ③ 越天楽今様 ===== */
+const imayoEl=document.getElementById("imayo");
+imayoEl.innerHTML=IMAYO.map((x,i)=> x[0]==="／"?"<br>": (x[1]?'<ruby data-i="'+i+'">'+x[0]+'<rt>'+x[1]+'</rt></ruby>':'<span data-i="'+i+'">'+x[0]+'</span>')).join("");
+function playImayo(inst){ensureAudio();stopAll();const spu=0.34;const t0=actx.currentTime+0.1;
+  const chars=[...imayoEl.querySelectorAll("[data-i]")];chars.forEach(c=>c.classList.remove("pl"));
+  MEL.forEach((n,i)=>{const ts=t0+i*8*spu;if(inst==="koto")koto(n[2],ts,1);else hichiriki(n[2],ts,8*spu*0.9,1);
+    const ms=(ts-actx.currentTime)*1000;setTimeout(()=>{chars.forEach(c=>c.classList.remove("pl"));if(chars[i])chars[i].classList.add("pl");},ms);});
+  document.getElementById("stopImayo").disabled=false;
+  setTimeout(()=>{chars.forEach(c=>c.classList.remove("pl"));document.getElementById("stopImayo").disabled=true;},(MEL.length*8*spu+0.4)*1000);
+}
+document.getElementById("playImayo").onclick=()=>playImayo("hichiriki");
+document.getElementById("playKoto").onclick=()=>playImayo("koto");
+document.getElementById("stopImayo").onclick=()=>{stopEverything();};
+
+/* ===== ④ クイズ ===== */
+const QUIZ=[{id:"hichiriki",nm:"篳篥（ひちりき）",play:t=>hichiriki(69,t,1.0,1)},
+  {id:"ryuteki",nm:"龍笛（りゅうてき）",play:t=>ryuteki(81,t,1.0,1)},
+  {id:"sho",nm:"笙（しょう）",play:t=>shoChord(AITAKE[0].notes,t,2.0,1)},
+  {id:"koto",nm:"楽箏（がくそう）",play:t=>koto(64,t,1)}];
+let score=0,qtot=0,curQ=null,answered=false;
+function newQ(){answered=false;document.getElementById("qfeedback").textContent="";document.getElementById("qnext").style.display="none";document.getElementById("qreplay").disabled=true;
+  const ans=QUIZ[Math.floor(Math.random()*QUIZ.length)];const opts=QUIZ.slice().sort(()=>Math.random()-0.5);curQ={ans,opts};
+  const box=document.getElementById("qopts");box.innerHTML="";opts.forEach(o=>{const b=document.createElement("div");b.className="qopt";b.textContent=o.nm;b.onclick=()=>ansQ(o,b);box.appendChild(b);});}
+function playQ(){if(!curQ)return;ensureAudio();stopAll();document.getElementById("qreplay").disabled=false;curQ.ans.play(actx.currentTime+0.05);}
+function ansQ(o,el){if(answered)return;answered=true;qtot++;const ok=o.id===curQ.ans.id;
+  if(ok){score++;el.classList.add("correct");document.getElementById("qfeedback").textContent="正解！ "+curQ.ans.nm;}
+  else{el.classList.add("wrong");document.getElementById("qfeedback").textContent="正解は "+curQ.ans.nm;[...document.getElementById("qopts").children].forEach(c=>{if(c.textContent===curQ.ans.nm)c.classList.add("correct");});}
+  document.getElementById("score").textContent=score;document.getElementById("qtotal").textContent=qtot;document.getElementById("qnext").style.display="";}
+document.getElementById("qplay").onclick=()=>{if(!curQ||answered)newQ();playQ();};
+document.getElementById("qreplay").onclick=playQ;document.getElementById("qnext").onclick=()=>{newQ();playQ();};
+
+/* ===== ワークシート保存 ===== */
+document.getElementById("saveWS").onclick=()=>{const c=document.getElementById("wsCanvas"),x=c.getContext("2d");
+  x.fillStyle="#fbf8f0";x.fillRect(0,0,c.width,c.height);x.fillStyle="#2a2042";x.fillRect(0,0,c.width,64);
+  x.fillStyle="#e7c870";x.font="bold 27px 'Yu Gothic UI'";x.fillText("雅楽 越天楽　ワークシート",26,42);
+  x.fillStyle="#333";x.font="16px 'Yu Gothic UI'";const name=document.getElementById("wsName").value||"（名前）";x.fillText("名前： "+name,26,98);
+  const Q=[["1. 印象に残った響き・楽器は？","ws1"],["2. 三管が重なると、ひびきはどう変わった？","ws2"],["3. 雅楽の「拍（時間の流れ）」のちがいは？","ws3"]];
+  let y=140;Q.forEach(q=>{x.fillStyle="#7a5c00";x.font="bold 17px 'Yu Gothic UI'";y=wrap(x,q[0],26,y,840,24)+4;x.fillStyle="#222";x.font="16px 'Yu Gothic UI'";(document.getElementById(q[1]).value||"").split("\n").forEach(ln=>{y=wrap(x,ln,38,y,810,24);});x.strokeStyle="#ddd";for(let k=0;k<2;k++){y+=26;x.beginPath();x.moveTo(38,y);x.lineTo(860,y);x.stroke();}y+=20;});
+  x.fillStyle="#999";x.font="12px sans-serif";x.fillText("雅楽 越天楽 体験ラボ（中学校 音楽科 鑑賞）",26,c.height-18);
+  const a=document.createElement("a");a.download="越天楽_ワークシート_"+name+".png";a.href=c.toDataURL("image/png");a.click();};
+function wrap(ctx,t,x,y,maxW,lh){if(!t)return y+lh;let line="";for(const ch of t){if(ctx.measureText(line+ch).width>maxW){ctx.fillText(line,x,y);line=ch;y+=lh;}else line+=ch;}ctx.fillText(line,x,y);return y+lh;}
+
+setTimeout(()=>{drawCv();newQ();},60);
+window.addEventListener("resize",()=>{if(!player.on)drawCv();});
+</script>
+</body>
+</html>
