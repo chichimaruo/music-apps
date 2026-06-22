@@ -197,6 +197,7 @@ a.yt{color:var(--acc2); font-size:12.5px;}
     <div class="row center" style="margin-top:8px;">
       <button class="btn" id="play3">▶ 全曲を再生</button>
       <button class="btn stop" id="stop3" disabled>■ 停止</button>
+      <button class="btn sec" id="sndtest">🔊 音テスト</button>
       <span class="tempo">速さ
         <span class="tbtn" data-r3="1">原曲</span>
         <span class="tbtn on" data-r3="1.5">×1.5</span>
@@ -273,7 +274,7 @@ a.yt{color:var(--acc2); font-size:12.5px;}
     <canvas id="wsCanvas" width="900" height="1180" style="display:none;"></canvas>
   </section>
 
-  <div class="foot">中学校 音楽科 鑑賞教材アプリ ／ 音源：Web Audio によるオルガン風シンセサイズ（BWV578）</div>
+  <div class="foot">中学校 音楽科 鑑賞教材アプリ ／ 音源：Web Audio によるオルガン風シンセサイズ（BWV578）<br><span style="opacity:.6">build v3（先読み再生）</span></div>
 </div>
 
 <div class="theme-pop" id="themePop">テーマ！</div>
@@ -473,6 +474,11 @@ let player={raf:null, schedTimer:null, on:false, startT:0, spu:0, vGain:null, id
 const LOOKAHEAD=0.4; // 秒：この先までを小出しに予約
 function startPlayback(opts){
   ensureAudio(); stopEverything();
+  // AudioContext が suspended のままだと無音になるため、running になってから開始
+  if(actx.state!=="running"){ actx.resume().then(()=>startPlaybackNow(opts)).catch(()=>startPlaybackNow(opts)); }
+  else startPlaybackNow(opts);
+}
+function startPlaybackNow(opts){
   player.on=true; player.spu = SECPERU_BASE/opts.rate;
   player.endU = opts.endU; player.idx=0;
   const t0 = actx.currentTime+0.14;
@@ -622,6 +628,12 @@ document.getElementById("play3").onclick=()=>{
   setBtns3(true);
 };
 document.getElementById("stop3").onclick=()=>{ stopEverything(); redraw3(); };
+// 音テスト：再生スケジューラを介さず、単音で即座に鳴らす（音が出る環境かの切り分け用）
+document.getElementById("sndtest").onclick=()=>{
+  ensureAudio();
+  const t=actx.currentTime+0.05;
+  [67,70,74].forEach((m,i)=>organNote(curStop,m,t+i*0.18,0.5,1));
+};
 // 答え表
 const entTable=document.getElementById("entTable");
 entTable.innerHTML="<tr><th>回</th><th>小節</th><th>声部（パート）</th><th>種類</th></tr>"+
