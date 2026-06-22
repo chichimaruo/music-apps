@@ -464,26 +464,41 @@ function fitCanvas(cv){
 }
 
 /* ============ 再生エンジン（共通スケジューラ） ============ */
-let player={raf:null, on:false, startT:0, spu:0, vGain:null, onTick:null, onEnd:null, endU:0};
+// 全音符を時間順にフラット化（先読みスケジュール用）
+const ALL_EVENTS=[];
+FUGUE.voices.forEach((v,vi)=>v.notes.forEach(n=>ALL_EVENTS.push({u:n[0],d:n[1],m:n[2],vi})));
+ALL_EVENTS.sort((a,b)=>a.u-b.u);
+
+let player={raf:null, schedTimer:null, on:false, startT:0, spu:0, vGain:null, idx:0, onTick:null, onEnd:null, endU:0};
+const LOOKAHEAD=0.4; // 秒：この先までを小出しに予約
 function startPlayback(opts){
   ensureAudio(); stopEverything();
   player.on=true; player.spu = SECPERU_BASE/opts.rate;
-  player.endU = opts.endU;
-  const t0 = actx.currentTime+0.12;
+  player.endU = opts.endU; player.idx=0;
+  const t0 = actx.currentTime+0.14;
   player.startT=t0;
   // 声部ごとのゲインバス（再生中のON/OFFに即応するため）
   player.vGain = FUGUE.voices.map((v,vi)=>{
     const g=actx.createGain(); g.gain.value = opts.voicesOn[vi]?1:0;
     g.connect(master); return g;
   });
-  FUGUE.voices.forEach((v,vi)=>{
-    v.notes.forEach(n=>{
-      const [u,d,m]=n;
-      if(u>opts.endU) return;
-      organNote(curStop, m, t0+u*player.spu, d*player.spu*0.96, 0.9, player.vGain[vi]);
-    });
-  });
   player.onTick=opts.onTick; player.onEnd=opts.onEnd;
+  // 先読みスケジューラ：直近 LOOKAHEAD 秒分の音だけを予約していく
+  const schedule=()=>{
+    if(!player.on) return;
+    const limit = actx.currentTime + LOOKAHEAD;
+    while(player.idx < ALL_EVENTS.length){
+      const e = ALL_EVENTS[player.idx];
+      if(e.u > player.endU){ player.idx = ALL_EVENTS.length; break; }
+      const t = player.startT + e.u*player.spu;
+      if(t > limit) break;
+      organNote(curStop, e.m, t, e.d*player.spu*0.96, 0.9, player.vGain[e.vi]);
+      player.idx++;
+    }
+  };
+  schedule();
+  player.schedTimer = setInterval(schedule, 60);
+  // 視覚（再生ヘッド・カウント）
   const loop=()=>{
     if(!player.on) return;
     const u=(actx.currentTime-player.startT)/player.spu;
@@ -496,6 +511,7 @@ function startPlayback(opts){
 function stopEverything(){
   player.on=false;
   if(player.raf) cancelAnimationFrame(player.raf);
+  if(player.schedTimer){ clearInterval(player.schedTimer); player.schedTimer=null; }
   stopAllSound();
   // ボタン状態を戻す
   setBtns2(false); setBtns3(false);
