@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>文楽 鑑賞ラボ</title>
+<style>
+  :root{
+    --bg:#f3ece0; --card:#fffaf2; --ink:#2a2420; --sub:#6d6256;
+    --red:#9b2d2d; --red2:#7a1f1f; --gold:#c2962f; --gold2:#a17c1e;
+    --indigo:#39496b; --green:#4d6b40; --line:#e2d6c2;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"UD デジタル 教科書体 N-B","Hiragino Mincho ProN","Yu Mincho","Meiryo",serif; line-height:1.6;}
+  header{background:linear-gradient(135deg,#7a1f1f,#9b2d2d); color:#fff; padding:18px 16px; text-align:center; border-bottom:4px solid var(--gold);}
+  header h1{margin:0; font-size:23px; letter-spacing:.06em;}
+  header p{margin:4px 0 0; font-size:13px; opacity:.93;}
+  nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:12px; background:#efe5d4; position:sticky; top:0; z-index:5; border-bottom:1px solid var(--line);}
+  nav button{border:2px solid var(--red); background:#fffaf2; color:var(--red2); border-radius:999px; padding:8px 14px; font-size:14px; font-weight:bold; font-family:inherit; cursor:pointer;}
+  nav button.active{background:var(--red); color:#fff;}
+  main{max-width:760px; margin:0 auto; padding:16px;}
+  .panel{display:none;}
+  .panel.show{display:block; animation:fade .25s;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  h2{font-size:19px; margin:0 0 10px; color:var(--red2);}
+  h3{font-size:16px; margin:14px 0 6px; color:var(--gold2);}
+  p.lead{font-size:14px; color:var(--sub); margin:2px 0 12px;}
+  .btn{display:inline-flex; align-items:center; gap:6px; justify-content:center; border:none; border-radius:11px; padding:12px 16px; font-size:15px; font-weight:bold; font-family:inherit; color:#fff; background:var(--red); cursor:pointer; margin:4px;}
+  .btn.gold{background:var(--gold2);} .btn.indigo{background:var(--indigo);} .btn.ghost{background:#f4ece0; color:var(--red2); border:2px solid var(--red);}
+  .btn:active{transform:scale(.97);}
+  .row{display:flex; flex-wrap:wrap; gap:10px;}
+  .three{flex:1 1 210px; min-width:200px; background:#fffaf2; border:2px solid var(--line); border-radius:14px; padding:14px; text-align:center;}
+  .three .ic{font-size:34px;}
+  .three .nm{font-size:18px; font-weight:bold; margin:4px 0; color:var(--red2);}
+  .three .ro{font-size:13px; color:var(--sub);}
+  figure{margin:0 0 10px;} figure img{width:100%; max-height:440px; object-fit:contain; border-radius:10px; display:block; background:#e5dccb;}
+  figcaption{font-size:11px; color:var(--sub); margin-top:4px;}
+  .strings{display:flex; flex-direction:column; gap:10px; margin:10px 0;}
+  .str{display:flex; align-items:center; gap:12px; background:#f7efe2; border:1px solid var(--line); border-radius:10px; padding:10px 14px; cursor:pointer;}
+  .str:active{background:#efe0c8;}
+  .str .lbl{font-weight:bold; color:var(--red2); min-width:90px;}
+  .str .ln{flex:1; height:3px; background:linear-gradient(90deg,var(--gold),#7a1f1f); border-radius:2px;}
+  .str.play .ln{height:6px; box-shadow:0 0 8px var(--gold);}
+  .puppet{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin:8px 0;}
+  .pp{flex:1 1 200px; min-width:180px; border:2px solid var(--line); border-radius:12px; padding:12px; background:#fffaf2; cursor:pointer; text-align:center;}
+  .pp.lit{border-color:var(--gold); background:#fbf2dd; box-shadow:0 0 0 3px rgba(194,150,47,.2);}
+  .pp .who{font-size:17px; font-weight:bold; color:var(--red2);}
+  .pp .ctrl{font-size:13px; color:var(--sub); margin-top:4px;}
+  .layer{display:flex; gap:8px; margin:8px 0;}
+  .layer .lyr{flex:1; text-align:center; padding:12px 6px; border-radius:10px; color:#fff; font-weight:bold;}
+  .word{background:#f7efe2; border-left:4px solid var(--red); padding:8px 12px; margin:8px 0; border-radius:0 8px 8px 0;}
+  .word b{color:var(--red2);}
+  .quiz-q{font-size:16px; font-weight:bold; margin:6px 0 10px;}
+  .quiz-opt{display:block; width:100%; text-align:left; margin:6px 0; padding:12px; border:2px solid var(--line); background:#fffaf2; border-radius:10px; font-size:15px; font-family:inherit; cursor:pointer;}
+  .quiz-opt.ok{background:#e8f4e3; border-color:var(--green);}
+  .quiz-opt.ng{background:#fbe9e7; border-color:#c0392b;}
+  .note{font-size:12px; color:var(--sub); text-align:center; margin-top:8px;}
+  .pill{display:inline-block; background:#f0e2c8; color:var(--gold2); border-radius:999px; padding:2px 10px; font-size:12px; margin:2px;}
+  footer{text-align:center; font-size:11px; color:var(--sub); padding:18px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎎 文楽　鑑賞ラボ</h1>
+  <p>人形浄瑠璃 文楽 ― 太夫・三味線・人形の三業を味わおう</p>
+</header>
+<nav id="nav"></nav>
+<main>
+  <!-- 1 三業 -->
+  <section class="panel" data-key="sangyo">
+    <div class="card">
+      <h2>🎭 三業（さんぎょう）を知ろう</h2>
+      <p class="lead">文楽は、<b>太夫（たゆう）</b>・<b>三味線</b>・<b>人形</b>の3つがひとつになって作り上げる「三位一体」の芸。これを<b>三業</b>という。</p>
+      <div class="row">
+        <div class="three"><div class="ic">🗣️</div><div class="nm">太夫</div><div class="ro">物語を語る（義太夫節）。一人で何役も語り分ける。</div></div>
+        <div class="three"><div class="ic">🪕</div><div class="nm">三味線</div><div class="ro">太棹（ふとざお）三味線。情景や心情を音で表す。</div></div>
+        <div class="three"><div class="ic">🎎</div><div class="nm">人形</div><div class="ro">3人で1体を操る（三人遣い）。命を吹き込む。</div></div>
+      </div>
+      <figure id="figStage" style="margin-top:14px"><img id="imgStage" alt="文楽の舞台"><figcaption id="capStage"></figcaption></figure>
+      <p class="note">大阪で生まれ、2009年にユネスコ無形文化遺産に登録された世界の宝。</p>
+    </div>
+  </section>
+
+  <!-- 2 太棹三味線 -->
+  <section class="panel" data-key="shamisen">
+    <div class="card">
+      <h2>🪕 太棹（ふとざお）三味線を聴こう</h2>
+      <p class="lead">文楽の三味線は、棹（さお）が太く胴も大きい <span class="pill">太棹</span>。低く重い音と、糸がビーンとうなる「<b>サワリ</b>」が特徴。糸をタップしてみよう。</p>
+      <div class="strings" id="strings"></div>
+      <div style="text-align:center">
+        <button class="btn" onclick="playPhrase()">▶ 短いふしを聴く</button>
+        <button class="btn gold" onclick="bachi()">🔊 バチで「ジャン！」</button>
+      </div>
+      <p class="note">調子は「本調子（ほんちょうし）」。撥（ばち）で力強くはじく。音は合成で再現しています。</p>
+    </div>
+  </section>
+
+  <!-- 3 義太夫節 -->
+  <section class="panel" data-key="gidayu">
+    <div class="card">
+      <h2>🗣️ 義太夫節（ぎだゆうぶし）のしくみ</h2>
+      <p class="lead">太夫が語る音楽を <span class="pill">義太夫節</span> という。創始したのは <b>竹本義太夫</b>。語りには大きく3つの調子がまざる。</p>
+      <div class="layer">
+        <div class="lyr" style="background:var(--indigo)">詞（ことば）<br><small>せりふ</small></div>
+        <div class="lyr" style="background:var(--green)">地（じ）<br><small>説明・情景</small></div>
+        <div class="lyr" style="background:var(--red)">節（ふし）<br><small>メロディー</small></div>
+      </div>
+      <div class="word"><b>詞（ことば）</b>… 登場人物のせりふ。話すように。</div>
+      <div class="word"><b>地（じ）</b>… 場面や気持ちの説明。語るように。</div>
+      <div class="word"><b>節（ふし）</b>… ふしをつけて、うたうように聴かせる山場。</div>
+      <h3>太夫の座る場所</h3>
+      <p style="font-size:14px">舞台の上手（かみて）に張り出した <b>床（ゆか）</b> で語る。台本をのせる <b>見台（けんだい）</b> を前に置く。担当の場面を、一人ですべて語り分ける。</p>
+    </div>
+  </section>
+
+  <!-- 4 三人遣い -->
+  <section class="panel" data-key="ningyo">
+    <div class="card">
+      <h2>🎎 人形の「三人遣い」</h2>
+      <p class="lead">1体の人形を <b>3人</b> で操るのが文楽の人形。ボタンを押して、だれが・どこを動かすか確かめよう。</p>
+      <div class="puppet" id="puppet">
+        <div class="pp" data-k="omo"><div class="who">主遣い（おもづかい）</div><div class="ctrl">首（かしら）と右手</div></div>
+        <div class="pp" data-k="hidari"><div class="who">左遣い（ひだりづかい）</div><div class="ctrl">左手</div></div>
+        <div class="pp" data-k="ashi"><div class="who">足遣い（あしづかい）</div><div class="ctrl">脚（足）</div></div>
+      </div>
+      <div class="card" style="background:#f7efe2; margin-top:12px">
+        <div id="puppetMsg" style="font-size:15px; min-height:48px">👆 上のボタンを押すと、役割が表示されます。</div>
+      </div>
+      <p class="note">3人が呼吸を合わせると、人形がまるで生きているように動く。主遣いがリーダー。</p>
+    </div>
+  </section>
+
+  <!-- 5 文楽の世界 -->
+  <section class="panel" data-key="world">
+    <div class="card">
+      <h2>📖 文楽の世界 ― 作者と名作</h2>
+      <figure><img id="imgChika" alt="近松門左衛門"><figcaption id="capChika"></figcaption></figure>
+      <div class="word"><b>近松門左衛門（ちかまつ もんざえもん）</b>… 江戸時代の名作者。「日本のシェイクスピア」とも呼ばれる。</div>
+      <div class="word"><b>竹本義太夫（たけもと ぎだゆう）</b>… 義太夫節を始めた太夫。大阪で人気を集めた。</div>
+      <h3>代表的な演目</h3>
+      <p style="font-size:14px">🎭 <b>曽根崎心中</b>（そねざきしんじゅう）／🌸 <b>義経千本桜</b>（よしつねせんぼんざくら）／⚔️ <b>仮名手本忠臣蔵</b>（かなでほんちゅうしんぐら）</p>
+      <h3>文楽のあゆみ</h3>
+      <p style="font-size:14px">江戸時代に大阪で発展。1955年に国の重要無形文化財、<b>2009年にユネスコ無形文化遺産</b>に登録された。</p>
+    </div>
+  </section>
+
+  <!-- 6 クイズ -->
+  <section class="panel" data-key="quiz">
+    <div class="card">
+      <h2>❓ ふりかえりクイズ</h2>
+      <p class="lead">学んだことを確かめよう。</p>
+      <div id="quizBox"></div>
+      <div style="text-align:center"><button class="btn ghost" onclick="resetQuiz()">もう一度</button></div>
+      <p class="note" id="quizScore"></p>
+    </div>
+  </section>
+</main>
+<footer>文楽 鑑賞ラボ ／ 三味線の音は合成による再現です。本物の文楽は授業で動画を見ましょう。　build v1</footer>
+
+<script>
+let AC=null;
+function ac(){ if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();} if(AC.state==='suspended')AC.resume(); return AC; }
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+
+// ---- 太棹三味線 (Karplus-Strong with サワリ) ----
+function noiseBuf(ctx,sec){
+  const len=Math.max(1,Math.floor(ctx.sampleRate*sec));
+  const b=ctx.createBuffer(1,len,ctx.sampleRate); const d=b.getChannelData(0);
+  for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+  return b;
+}
+function pluck(freq,t,dur,vol=0.6,bright=2600,sawari=0.0,ctx){
+  const a=ctx||ac();
+  const out=a.createGain(); out.gain.value=vol; out.connect(a.destination);
+  // body: sawtooth through a closing lowpass = plucked-string attack
+  const o=a.createOscillator(); o.type='sawtooth'; o.frequency.value=freq;
+  const lp=a.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=1;
+  lp.frequency.setValueAtTime(bright,t); lp.frequency.exponentialRampToValueAtTime(Math.max(320,freq*2),t+Math.min(dur*0.7,0.9));
+  const eg=a.createGain(); eg.gain.setValueAtTime(0.0001,t); eg.gain.linearRampToValueAtTime(1,t+0.005);
+  eg.gain.exponentialRampToValueAtTime(0.0006,t+dur);
+  o.connect(lp); lp.connect(eg); eg.connect(out); o.start(t); o.stop(t+dur+0.05);
+  // bachi attack: short noise transient
+  const ns=a.createBufferSource(); ns.buffer=noiseBuf(a,0.03);
+  const nf=a.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=Math.min(3500,bright); nf.Q.value=0.6;
+  const ng=a.createGain(); ng.gain.setValueAtTime(0.5,t); ng.gain.exponentialRampToValueAtTime(0.001,t+0.045);
+  ns.connect(nf); nf.connect(ng); ng.connect(out); ns.start(t); ns.stop(t+0.06);
+  // サワリ: a buzzing high partial that lingers on the low strings
+  if(sawari>0){
+    const bz=a.createOscillator(); bz.type='sawtooth'; bz.frequency.value=freq*2.0;
+    const bzf=a.createBiquadFilter(); bzf.type='bandpass'; bzf.frequency.value=freq*5; bzf.Q.value=5;
+    const bzg=a.createGain(); bzg.gain.setValueAtTime(0.0001,t); bzg.gain.linearRampToValueAtTime(sawari*0.5,t+0.02);
+    bzg.gain.exponentialRampToValueAtTime(0.0005,t+dur*0.9);
+    bz.connect(bzf); bzf.connect(bzg); bzg.connect(out); bz.start(t); bz.stop(t+dur);
+  }
+}
+
+// 本調子: 一の糸(低)・二の糸・三の糸  ≈ B2,E3,B3 (ド-ファ-ド)
+const STRINGS=[["一の糸（低い）",47,0.5],["二の糸",52,0.25],["三の糸（高い）",59,0.0]];
+// 都節風フレーズ (miyakobushi) for phrase
+const PHRASE=[47,48,52,51,52,55,52,51,48,47];
+
+function buildStrings(){
+  const box=document.getElementById('strings'); box.innerHTML='';
+  STRINGS.forEach((s,i)=>{
+    const d=document.createElement('div'); d.className='str';
+    d.innerHTML='<span class="lbl">'+s[0]+'</span><span class="ln"></span>';
+    d.onclick=()=>{ const t=ac().currentTime+0.02; pluck(mtof(s[1]),t,1.6,0.6,2400,s[2]); d.classList.add('play'); setTimeout(()=>d.classList.remove('play'),300); };
+    box.appendChild(d);
+  });
+}
+function playPhrase(){
+  const a=ac(); let t=a.currentTime+0.05;
+  PHRASE.forEach((m,i)=>{ const d=(i%4===3)?0.45:0.3; pluck(mtof(m),t,d*1.6,0.5,2300,m<=48?0.4:0.05); t+=d; });
+}
+function bachi(){ const t=ac().currentTime+0.02; pluck(mtof(47),t,2.0,0.75,3200,0.6); }
+
+// ---- 三人遣い ----
+const PUP={
+  omo:["主遣い（おもづかい）","人形の<b>首（かしら）と右手</b>を操る、3人のリーダー。表情や視線、うなずきを生み出す。高い下駄をはくことも。"],
+  hidari:["左遣い（ひだりづかい）","人形の<b>左手</b>を操り、小道具も扱う。主遣いの動きに合わせる。"],
+  ashi:["足遣い（あしづかい）","人形の<b>脚（足）</b>を操る。歩く・走る・座るなどの動きをつくる。女形は足がないので着物のすそで表す。"]
+};
+function buildPuppet(){
+  document.querySelectorAll('#puppet .pp').forEach(p=>{
+    p.onclick=()=>{
+      document.querySelectorAll('#puppet .pp').forEach(x=>x.classList.toggle('lit',x===p));
+      const k=p.dataset.k; document.getElementById('puppetMsg').innerHTML='<b style="color:var(--red2)">'+PUP[k][0]+'</b><br>'+PUP[k][1];
+    };
+  });
+}
+
+// ---- 画像 ----
+function setImg(){
+  document.getElementById('imgStage').src='img/stage.jpg';
+  document.getElementById('capStage').textContent='文楽の人形（女形） © Wikimedia Commons / CC0';
+  document.getElementById('imgChika').src='img/chikamatsu.jpg';
+  document.getElementById('capChika').textContent='近松門左衛門（肖像） © Wikimedia Commons / Public domain';
+}
+
+// ---- クイズ ----
+const QUIZ=[
+  {q:'文楽の「三業」にふくまれないものは？',o:['太夫','三味線','指揮者'],a:2},
+  {q:'文楽で使う三味線は？',o:['細棹','太棹','中棹'],a:1},
+  {q:'物語を語る人を何という？',o:['太夫','囃子方','地謡'],a:0},
+  {q:'1体の人形を操る人数は？',o:['1人','2人','3人'],a:2},
+  {q:'人形の首（かしら）と右手を操るのは？',o:['主遣い','左遣い','足遣い'],a:0},
+  {q:'義太夫節を始めた人は？',o:['近松門左衛門','竹本義太夫','世阿弥'],a:1},
+  {q:'文楽が生まれた都市は？',o:['江戸','京都','大阪'],a:2},
+  {q:'三味線の糸がうなる独特の響きを何という？',o:['サワリ','ビブラート','リバーブ'],a:0},
+];
+let qi=0,qok=0;
+function renderQuiz(){
+  const box=document.getElementById('quizBox');
+  if(qi>=QUIZ.length){ box.innerHTML='<p class="quiz-q">🎉 おわり！</p>'; document.getElementById('quizScore').textContent='正解 '+qok+' / '+QUIZ.length; return; }
+  const item=QUIZ[qi]; box.innerHTML='<div class="quiz-q">Q'+(qi+1)+'. '+item.q+'</div>';
+  item.o.forEach((op,idx)=>{
+    const b=document.createElement('button'); b.className='quiz-opt'; b.textContent=op;
+    b.onclick=()=>{
+      if(idx===item.a){ b.classList.add('ok'); qok++; } else { b.classList.add('ng'); box.querySelectorAll('.quiz-opt')[item.a].classList.add('ok'); }
+      box.querySelectorAll('.quiz-opt').forEach(x=>x.disabled=true);
+      setTimeout(()=>{ qi++; renderQuiz(); },850);
+    };
+    box.appendChild(b);
+  });
+  document.getElementById('quizScore').textContent='';
+}
+function resetQuiz(){ qi=0; qok=0; renderQuiz(); }
+
+// ---- ナビ ----
+const TABS=[['sangyo','🎭 三業'],['shamisen','🪕 太棹三味線'],['gidayu','🗣️ 義太夫節'],['ningyo','🎎 三人遣い'],['world','📖 文楽の世界'],['quiz','❓ クイズ']];
+function buildNav(){ const nav=document.getElementById('nav'); TABS.forEach(([k,label])=>{ const b=document.createElement('button'); b.textContent=label; b.dataset.k=k; b.onclick=()=>show(k); nav.appendChild(b); }); }
+function show(key){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('show',p.dataset.key===key));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.k===key));
+}
+buildNav(); buildStrings(); buildPuppet(); setImg(); renderQuiz();
+const initKey=(location.hash||'').replace('#',''); show(TABS.some(t=>t[0]===initKey)?initKey:'sangyo');
+document.body.addEventListener('touchstart',()=>ac(),{once:true});
+
+// offline audio self-test
+window.__audioPeak=async function(){
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  const oc=new OAC(1,44100*3,44100);
+  let t=0.05; PHRASE.forEach((m,i)=>{ pluck(mtof(m),t,0.5,0.5,2300,m<=48?0.4:0.05,oc); t+=0.3; });
+  const buf=await oc.startRendering(); const ch=buf.getChannelData(0); let peak=0;
+  for(let i=0;i<ch.length;i++){ const v=Math.abs(ch[i]); if(v>peak)peak=v; } return peak;
+};
+</script>
+</body>
+</html>
