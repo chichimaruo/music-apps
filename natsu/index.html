@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>夏の思い出 表現ラボ</title>
+<style>
+  :root{
+    --bg:#eef5ef; --card:#ffffff; --ink:#23332a; --sub:#5d6f63;
+    --green:#3f8d5e; --green2:#2e6b46; --pink:#d98aa6; --pink2:#b85a7c;
+    --gold:#c79a3a; --sky:#5a93b8; --line:#d6e3d9;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"UD デジタル 教科書体 N-B","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+    line-height:1.6;
+  }
+  header{
+    background:linear-gradient(135deg,#2e6b46,#3f8d5e); color:#fff;
+    padding:18px 16px; text-align:center;
+  }
+  header h1{margin:0; font-size:22px; letter-spacing:.04em;}
+  header p{margin:4px 0 0; font-size:13px; opacity:.92;}
+  nav{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center;
+    padding:12px; background:#dfeae1; position:sticky; top:0; z-index:5;
+    border-bottom:1px solid var(--line);
+  }
+  nav button{
+    border:2px solid var(--green); background:#fff; color:var(--green2);
+    border-radius:999px; padding:8px 14px; font-size:14px; font-weight:bold;
+    font-family:inherit; cursor:pointer;
+  }
+  nav button.active{background:var(--green); color:#fff;}
+  main{max-width:760px; margin:0 auto; padding:16px;}
+  .panel{display:none;}
+  .panel.show{display:block; animation:fade .25s;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:18px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.05);
+  }
+  h2{font-size:19px; margin:0 0 10px; color:var(--green2);}
+  h3{font-size:16px; margin:14px 0 6px; color:var(--pink2);}
+  p.lead{font-size:14px; color:var(--sub); margin:2px 0 12px;}
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; justify-content:center;
+    border:none; border-radius:12px; padding:12px 16px; font-size:15px; font-weight:bold;
+    font-family:inherit; color:#fff; background:var(--green); cursor:pointer; margin:4px;
+  }
+  .btn.pink{background:var(--pink2);} .btn.sky{background:var(--sky);} .btn.gold{background:var(--gold);}
+  .btn.ghost{background:#eef3ef; color:var(--green2); border:2px solid var(--green);}
+  .btn:active{transform:scale(.97);}
+  .row{display:flex; flex-wrap:wrap; gap:8px;}
+  .sym{
+    flex:1 1 150px; min-width:140px; background:#f7faf8; border:2px solid var(--line);
+    border-radius:14px; padding:14px; text-align:center;
+  }
+  .sym .mark{font-size:30px; color:var(--green2); font-weight:bold; min-height:38px;}
+  .sym .name{font-size:15px; font-weight:bold; margin:4px 0;}
+  .sym .desc{font-size:12px; color:var(--sub);}
+  .scale-keys{display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:8px 0;}
+  .key{
+    width:42px; height:90px; border-radius:0 0 8px 8px; border:1px solid #cbd8ce;
+    background:#fff; color:var(--ink); font-weight:bold; font-size:13px; cursor:pointer;
+    display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px;
+  }
+  .key.sharp{background:#fbeef3; border-color:var(--pink);}
+  .key.active{background:var(--green); color:#fff;}
+  .form-bar{display:flex; gap:6px; margin:10px 0;}
+  .seg{flex:1; text-align:center; padding:14px 6px; border-radius:10px; font-weight:bold; color:#fff;}
+  .seg.A{background:var(--sky);} .seg.B{background:var(--pink2);}
+  .seg.lit{outline:4px solid var(--gold);}
+  .met-dot{display:flex; gap:8px; justify-content:center; margin:12px 0;}
+  .dot{width:22px; height:22px; border-radius:50%; background:#cdddd2;}
+  .dot.on{background:var(--green); transform:scale(1.25);}
+  .dot.sub{width:13px; height:13px; background:#e2ece5;}
+  .dot.sub.on{background:var(--pink);}
+  figure{margin:0 0 12px;}
+  figure img{width:100%; border-radius:12px; display:block; background:#dfe7e0;}
+  figcap, figcaption{font-size:11px; color:var(--sub); margin-top:4px;}
+  .word{background:#f7faf8; border-left:4px solid var(--green); padding:8px 12px; margin:8px 0; border-radius:0 8px 8px 0;}
+  .word b{color:var(--green2);}
+  .quiz-q{font-size:16px; font-weight:bold; margin:6px 0 10px;}
+  .quiz-opt{display:block; width:100%; text-align:left; margin:6px 0; padding:12px;
+    border:2px solid var(--line); background:#fff; border-radius:10px; font-size:15px; font-family:inherit; cursor:pointer;}
+  .quiz-opt.ok{background:#e7f6ec; border-color:var(--green);}
+  .quiz-opt.ng{background:#fdeceb; border-color:#d9534f;}
+  .note{font-size:12px; color:var(--sub); text-align:center; margin-top:8px;}
+  .tempo{font-size:14px; text-align:center; color:var(--sub);}
+  footer{text-align:center; font-size:11px; color:var(--sub); padding:18px;}
+  .pill{display:inline-block; background:#dff0e6; color:var(--green2); border-radius:999px; padding:2px 10px; font-size:12px; margin:2px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌸 夏の思い出　表現ラボ</h1>
+  <p>江間章子 作詞／中田喜直 作曲（1949年）　― 表現の工夫を体験しよう ―</p>
+</header>
+
+<nav id="nav"></nav>
+
+<main>
+  <!-- 1 表現記号 -->
+  <section class="panel" data-key="sym">
+    <div class="card">
+      <h2>🎼 表現記号を体験しよう</h2>
+      <p class="lead">「夏の思い出」には、やさしくのびやかに歌うための記号がたくさん。まず<b>ふつう</b>に聴いてから、記号つきと聴きくらべよう。（鳴るのは練習用の短いニ長調の旋律です）</p>
+      <div class="row">
+        <div class="sym"><div class="mark">pp</div><div class="name">ピアニッシモ</div><div class="desc">とても弱く</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn pink" onclick="demo('pp')">pp で</button></div>
+        <div class="sym"><div class="mark">dim.</div><div class="name">ディミヌエンド</div><div class="desc">だんだん弱く</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn pink" onclick="demo('dim')">dim. で</button></div>
+        <div class="sym"><div class="mark">―</div><div class="name">テヌート</div><div class="desc">音の長さを十分に保つ</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn pink" onclick="demo('ten')">テヌートで</button></div>
+        <div class="sym"><div class="mark">𝄐</div><div class="name">フェルマータ</div><div class="desc">ほどよくのばす</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn pink" onclick="demo('fer')">フェルマータで</button></div>
+        <div class="sym"><div class="mark">3</div><div class="name">三連符</div><div class="desc">音符を3等分</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn pink" onclick="demo('trip')">三連符で</button></div>
+      </div>
+      <p class="note">🔊 音が出ないときは一度画面をタップしてから押してね。</p>
+    </div>
+  </section>
+
+  <!-- 2 拍子と三連符 -->
+  <section class="panel" data-key="beat">
+    <div class="card">
+      <h2>🥁 4分の4拍子と三連符</h2>
+      <p class="lead">「夏の思い出」は <span class="pill">4分の4拍子</span> <span class="pill">♩= 63 ぐらい</span>。1拍を3つに分けた<b>三連符</b>の動きも出てきます。聴いて感じよう。</p>
+      <div class="tempo" id="metLabel">♩ = 63　／　4分音符</div>
+      <div class="met-dot" id="metDots"></div>
+      <div style="text-align:center">
+        <button class="btn" id="metBtn" onclick="toggleMet()">▶ スタート</button>
+        <button class="btn ghost" onclick="setSub(1)">4分音符</button>
+        <button class="btn gold" onclick="setSub(3)">三連符（3等分）</button>
+      </div>
+      <p class="note">「タッカ」ではなく、なめらかに「タ・タ・タ」と3つに分かれる感じ。</p>
+    </div>
+  </section>
+
+  <!-- 3 ニ長調 -->
+  <section class="panel" data-key="scale">
+    <div class="card">
+      <h2>🎹 ニ長調（ニちょうちょう）の音階</h2>
+      <p class="lead">この曲の調は <span class="pill">ニ長調</span>。主音は「レ」。<b>ファ</b>と<b>ド</b>に♯がつきます（ピンクの音）。タップして鳴らそう。</p>
+      <div class="scale-keys" id="scaleKeys"></div>
+      <div style="text-align:center">
+        <button class="btn" onclick="playScale(1)">▶ のぼる</button>
+        <button class="btn ghost" onclick="playScale(-1)">▼ おりる</button>
+      </div>
+      <p class="note">レ・ミ・ファ♯・ソ・ラ・シ・ド♯・レ　— 明るくのびやかな響き。</p>
+    </div>
+  </section>
+
+  <!-- 4 二部形式 -->
+  <section class="panel" data-key="form">
+    <div class="card">
+      <h2>🏞 二部形式のしくみ</h2>
+      <p class="lead">「夏の思い出」は <span class="pill">二部形式</span>。大きく <b>A</b> と <b>B</b> の2つのまとまりでできています。ボタンで、まとまりの感じをつかもう（練習用の音型です）。</p>
+      <div class="form-bar" id="formBar">
+        <div class="seg A" data-seg="A">A<br><small>静かに始まる</small></div>
+        <div class="seg B" data-seg="B">B<br><small>盛り上がる</small></div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn sky" onclick="playForm('A')">A を聴く</button>
+        <button class="btn pink" onclick="playForm('B')">B を聴く</button>
+        <button class="btn ghost" onclick="playForm('AB')">A→B 通して</button>
+      </div>
+      <p class="note">Bでは音が高く・強くなり、気持ちが高まります。最後は静かに（dim.）終わります。</p>
+    </div>
+  </section>
+
+  <!-- 5 尾瀬への旅 -->
+  <section class="panel" data-key="oze">
+    <div class="card">
+      <h2>🌿 尾瀬への旅 ― 歌の情景</h2>
+      <p class="lead">歌われているのは、群馬・福島・新潟にまたがる高原の湿原「<b>尾瀬</b>」の初夏の風景です。</p>
+      <figure><img id="imgOze" alt="尾瀬ヶ原"><figcaption id="capOze">尾瀬ヶ原 © Wikimedia Commons</figcaption></figure>
+      <figure><img id="imgMizu" alt="水芭蕉"><figcaption id="capMizu">水芭蕉 © Wikimedia Commons</figcaption></figure>
+      <h3>ことばの意味</h3>
+      <div class="word"><b>尾瀬ヶ原（おぜがはら）</b>… 高い山にかこまれた広い<b>湿原（しつげん）</b>。木道を歩いて散策する。</div>
+      <div class="word"><b>水芭蕉（みずばしょう）</b>… 湿地に咲く白い花のような植物。初夏、雪どけのころに咲く。</div>
+      <div class="word"><b>石楠花色（しゃくなげいろ）</b>… 石楠花の花のような、うすい紅むらさき色。夕暮れの空の色。</div>
+      <h3>この歌のうまれ</h3>
+      <p style="font-size:14px">1949年、NHKラジオ歌謡のためにつくられました。作曲した<b>中田喜直</b>の父は「早春賦」を作曲した<b>中田章</b>。戦争のあと、人々が美しい自然に思いをはせた時代の歌です。</p>
+    </div>
+  </section>
+
+  <!-- 6 クイズ -->
+  <section class="panel" data-key="quiz">
+    <div class="card">
+      <h2>❓ ふりかえりクイズ</h2>
+      <p class="lead">学んだことを確かめよう。</p>
+      <div id="quizBox"></div>
+      <div style="text-align:center"><button class="btn ghost" onclick="resetQuiz()">もう一度</button></div>
+      <p class="note" id="quizScore"></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  夏の思い出 表現ラボ ／ 著作権セーフ設計（楽曲そのものは再生せず、表現を体験する練習用アプリ）<br>
+  本物の演奏は授業で動画・CDで聴きましょう。　build v1
+</footer>
+
+<script>
+// ---------- Web Audio ----------
+let AC=null;
+function ac(){ if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();} if(AC.state==='suspended')AC.resume(); return AC; }
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+// gentle mellow voice
+function voice(midi,t,dur,vol=0.3,decay=true,ctx){
+  const a=ctx||ac(); const o=a.createOscillator(), g=a.createGain(), o2=a.createOscillator(), g2=a.createGain();
+  o.type='triangle'; o2.type='sine'; o.frequency.value=mtof(midi); o2.frequency.value=mtof(midi);
+  const f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=2200;
+  o.connect(g); o2.connect(g2); g.connect(f); g2.connect(f); f.connect(a.destination);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.03);
+  g2.gain.setValueAtTime(0,t); g2.gain.linearRampToValueAtTime(vol*0.5,t+0.03);
+  if(decay){ g.gain.exponentialRampToValueAtTime(0.0001,t+dur); g2.gain.exponentialRampToValueAtTime(0.0001,t+dur); }
+  else { g.gain.setValueAtTime(vol,t+dur-0.06); g.gain.linearRampToValueAtTime(0.0001,t+dur);
+         g2.gain.setValueAtTime(vol*0.5,t+dur-0.06); g2.gain.linearRampToValueAtTime(0.0001,t+dur); }
+  o.start(t); o2.start(t); o.stop(t+dur+0.05); o2.stop(t+dur+0.05);
+}
+function click(t,strong){
+  const a=ac(); const o=a.createOscillator(), g=a.createGain();
+  o.frequency.value=strong?1400:900; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(strong?0.5:0.28,t+0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.09); o.start(t); o.stop(t+0.1);
+}
+
+// ---------- D major ----------
+const Dmaj=[62,64,66,67,69,71,73,74]; // D E F# G A B C# D
+const names=['レ','ミ','ファ♯','ソ','ラ','シ','ド♯','レ'];
+
+//练習用 motif (NOT the song) — neutral D-major phrase
+const motif=[62,66,69,67,66,64,62];     // simple A-ish
+const motifB=[69,71,73,74,73,71,69];    // higher B-ish
+
+// ---------- 表現記号デモ ----------
+function demo(kind){
+  const a=ac(); let t=a.currentTime+0.05; const beat=0.42;
+  if(kind==='trip'){
+    // triplet subdivision of each note
+    motif.forEach((m,i)=>{ for(let k=0;k<3;k++){ voice(m,t+ (i*beat) + k*beat/3, beat/3*0.95, 0.28); } });
+    return;
+  }
+  motif.forEach((m,i)=>{
+    let vol=0.32, dur=beat*0.9, tt=t+i*beat, dec=true;
+    if(kind==='pp')vol=0.12;
+    if(kind==='dim')vol=0.34*(1-i/(motif.length+1));
+    if(kind==='ten'){dur=beat*0.99; dec=false;}
+    if(kind==='fer' && i===motif.length-1){dur=beat*2.4;}
+    voice(m,tt,dur,vol,dec);
+  });
+}
+
+// ---------- 拍子・三連符 ----------
+let metOn=false, metSub=1, metTimer=null, metBeat=0;
+const BPM=63, spb=60/BPM;
+function buildDots(){
+  const box=document.getElementById('metDots'); box.innerHTML='';
+  for(let b=0;b<4;b++){
+    const d=document.createElement('div'); d.className='dot'; d.dataset.b=b; box.appendChild(d);
+    if(metSub===3){ for(let s=1;s<3;s++){ const sd=document.createElement('div'); sd.className='dot sub'; sd.dataset.b=b; sd.dataset.s=s; box.appendChild(sd);} }
+  }
+}
+function setSub(n){ metSub=n; document.getElementById('metLabel').textContent='♩ = 63　／　'+(n===3?'三連符':'4分音符'); buildDots(); }
+function toggleMet(){
+  metOn=!metOn; document.getElementById('metBtn').textContent=metOn?'■ ストップ':'▶ スタート';
+  if(metOn){ ac(); metBeat=0; schedule(); } else { clearTimeout(metTimer); clearDots(); }
+}
+function clearDots(){ document.querySelectorAll('#metDots .dot').forEach(d=>d.classList.remove('on')); }
+function schedule(){
+  const a=ac(); const now=a.currentTime+0.03;
+  const beat=metBeat%4;
+  const stepDur=spb/3;
+  click(now, beat===0);
+  flash(beat,0);
+  if(metSub===3){
+    click(now+stepDur, false);   setTimeout(()=>flash(beat,1), stepDur*1000);
+    click(now+2*stepDur, false); setTimeout(()=>flash(beat,2), 2*stepDur*1000);
+  }
+  metBeat++;
+  metTimer=setTimeout(schedule, spb*1000);
+}
+function flash(beat,sub){
+  clearDots();
+  const main=document.querySelector('#metDots .dot[data-b="'+beat+'"]:not(.sub)'); if(main)main.classList.add('on');
+  if(sub>0){ const sd=document.querySelector('#metDots .dot.sub[data-b="'+beat+'"][data-s="'+sub+'"]'); if(sd)sd.classList.add('on'); }
+}
+
+// ---------- ニ長調 ----------
+function buildScale(){
+  const box=document.getElementById('scaleKeys'); box.innerHTML='';
+  Dmaj.forEach((m,i)=>{
+    const k=document.createElement('div'); k.className='key'+(names[i].includes('♯')?' sharp':''); k.textContent=names[i];
+    k.onclick=()=>{ const t=ac().currentTime+0.02; voice(m,t,0.7,0.32); k.classList.add('active'); setTimeout(()=>k.classList.remove('active'),300); };
+    box.appendChild(k);
+  });
+}
+function playScale(dir){
+  const a=ac(); let t=a.currentTime+0.05; const seq=dir>0?Dmaj:[...Dmaj].reverse();
+  const keys=[...document.querySelectorAll('#scaleKeys .key')];
+  seq.forEach((m,i)=>{ voice(m,t+i*0.34,0.32,0.32);
+    setTimeout(()=>{ const idx=dir>0?i:(seq.length-1-i); keys[idx].classList.add('active'); setTimeout(()=>keys[idx].classList.remove('active'),260);}, (i*0.34+0.05)*1000);
+  });
+}
+
+// ---------- 二部形式 ----------
+function playForm(which){
+  const a=ac(); let t=a.currentTime+0.05; const beat=0.4;
+  const segs=document.querySelectorAll('#formBar .seg');
+  const lit=(name)=>{ segs.forEach(s=>s.classList.toggle('lit', s.dataset.seg===name)); };
+  function run(phrase,start,vol,name,fade){
+    setTimeout(()=>lit(name), Math.max(0,(start-a.currentTime))*1000);
+    phrase.forEach((m,i)=>{ let v=vol; if(fade)v=vol*(1-i/(phrase.length+1)); voice(m,start+i*beat,beat*0.9,v); });
+  }
+  if(which==='A'){ run(motif,t,0.3,'A'); }
+  else if(which==='B'){ run(motifB,t,0.34,'B'); }
+  else { run(motif,t,0.3,'A'); run(motifB,t+motif.length*beat+0.2,0.34,'B',true); }
+  setTimeout(()=>segs.forEach(s=>s.classList.remove('lit')), 4500);
+}
+
+// ---------- 画像 ----------
+function setImg(){
+  // images live alongside in ./img/. Fallbacks handled by alt text.
+  document.getElementById('imgOze').src='img/oze.jpg';
+  document.getElementById('imgMizu').src='img/mizubasho.jpg';
+}
+
+// ---------- クイズ ----------
+const QUIZ=[
+  {q:'「夏の思い出」の作曲者は？',o:['中田喜直','滝廉太郎','江間章子'],a:0},
+  {q:'作詞をしたのは？',o:['武島羽衣','江間章子','中田章'],a:1},
+  {q:'この曲の調（ちょう）は？',o:['ハ長調','ニ短調','ニ長調'],a:2},
+  {q:'拍子は？',o:['4分の4拍子','4分の3拍子','8分の6拍子'],a:0},
+  {q:'曲の形式は？',o:['二部形式','ロンド形式','ソナタ形式'],a:0},
+  {q:'「だんだん弱く」を表す記号は？',o:['cresc.','dim.','pp'],a:1},
+  {q:'歌われている湿原の名前は？',o:['上高地','尾瀬','奥入瀬'],a:1},
+  {q:'1拍を3つに分けた音符を何という？',o:['付点音符','三連符','十六分音符'],a:1},
+];
+let qi=0, qok=0;
+function renderQuiz(){
+  const box=document.getElementById('quizBox');
+  if(qi>=QUIZ.length){ box.innerHTML='<p class="quiz-q">🎉 おわり！</p>'; document.getElementById('quizScore').textContent='正解 '+qok+' / '+QUIZ.length; return; }
+  const item=QUIZ[qi];
+  box.innerHTML='<div class="quiz-q">Q'+(qi+1)+'. '+item.q+'</div>';
+  item.o.forEach((op,idx)=>{
+    const b=document.createElement('button'); b.className='quiz-opt'; b.textContent=op;
+    b.onclick=()=>{
+      if(idx===item.a){ b.classList.add('ok'); qok++; }
+      else { b.classList.add('ng'); box.querySelectorAll('.quiz-opt')[item.a].classList.add('ok'); }
+      box.querySelectorAll('.quiz-opt').forEach(x=>x.disabled=true);
+      setTimeout(()=>{ qi++; renderQuiz(); }, 850);
+    };
+    box.appendChild(b);
+  });
+  document.getElementById('quizScore').textContent='';
+}
+function resetQuiz(){ qi=0; qok=0; renderQuiz(); }
+
+// ---------- ナビ ----------
+const TABS=[['sym','🎼 表現記号'],['beat','🥁 拍子'],['scale','🎹 ニ長調'],['form','🏞 形式'],['oze','🌿 尾瀬'],['quiz','❓ クイズ']];
+function buildNav(){
+  const nav=document.getElementById('nav');
+  TABS.forEach(([k,label],i)=>{
+    const b=document.createElement('button'); b.textContent=label; b.dataset.k=k;
+    b.onclick=()=>show(k); nav.appendChild(b);
+  });
+}
+function show(key){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('show',p.dataset.key===key));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.k===key));
+  if(key==='beat'&&metOn){toggleMet();}
+}
+// init
+buildNav(); buildScale(); buildDots(); setImg(); renderQuiz();
+const initKey=(location.hash||'').replace('#',''); show(TABS.some(t=>t[0]===initKey)?initKey:'sym');
+document.body.addEventListener('touchstart',()=>ac(),{once:true});
+
+// ---- offline audio self-test (used by verification only; harmless in prod) ----
+window.__audioPeak=async function(){
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  const oc=new OAC(1, 44100*4, 44100);
+  // render the triplet demo (densest: 7 notes x3) + a scale, into offline ctx
+  let t=0.05; const beat=0.42;
+  motif.forEach((m,i)=>{ for(let k=0;k<3;k++){ voice(m,t+i*beat+k*beat/3,beat/3*0.95,0.28,true,oc); } });
+  Dmaj.forEach((m,i)=>{ voice(m, 3.2+i*0.34, 0.32, 0.32, true, oc); }); // sequential, mirrors playScale
+  const buf=await oc.startRendering();
+  const ch=buf.getChannelData(0); let peak=0;
+  for(let i=0;i<ch.length;i++){ const v=Math.abs(ch[i]); if(v>peak)peak=v; }
+  return peak;
+};
+</script>
+</body>
+</html>
