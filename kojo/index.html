@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>荒城の月 調べラボ</title>
+<style>
+  :root{
+    --bg:#f1f0f6; --card:#ffffff; --ink:#26243a; --sub:#5e5c74;
+    --green:#5b7a6b; --green2:#46604f; --blue:#5a5a8c; --blue2:#3d3d6b;
+    --plum:#9c6b8c; --gold:#c9a23a; --line:#dcdae6;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"UD デジタル 教科書体 N-B","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif; line-height:1.6;}
+  header{background:linear-gradient(135deg,#2a2a4a,#4a3d6b); color:#fff; padding:18px 16px; text-align:center;}
+  header h1{margin:0; font-size:22px; letter-spacing:.04em;}
+  header p{margin:4px 0 0; font-size:13px; opacity:.92;}
+  nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:12px; background:#e3e1ee; position:sticky; top:0; z-index:5; border-bottom:1px solid var(--line);}
+  nav button{border:2px solid var(--blue); background:#fff; color:var(--blue2); border-radius:999px; padding:8px 14px; font-size:14px; font-weight:bold; font-family:inherit; cursor:pointer;}
+  nav button.active{background:var(--blue); color:#fff;}
+  main{max-width:760px; margin:0 auto; padding:16px;}
+  .panel{display:none;} .panel.show{display:block; animation:fade .25s;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  h2{font-size:19px; margin:0 0 10px; color:var(--blue2);}
+  h3{font-size:16px; margin:14px 0 6px; color:var(--plum);}
+  p.lead{font-size:14px; color:var(--sub); margin:2px 0 12px;}
+  .btn{display:inline-flex; align-items:center; gap:6px; justify-content:center; border:none; border-radius:12px; padding:12px 16px; font-size:15px; font-weight:bold; font-family:inherit; color:#fff; background:var(--blue); cursor:pointer; margin:4px;}
+  .btn.plum{background:var(--plum);} .btn.green{background:var(--green2);} .btn.gold{background:var(--gold); color:#26243a;}
+  .btn.ghost{background:#eeedf6; color:var(--blue2); border:2px solid var(--blue);}
+  .btn:active{transform:scale(.97);}
+  .row{display:flex; flex-wrap:wrap; gap:8px;}
+  .sym{flex:1 1 150px; min-width:140px; background:#f4f3fa; border:2px solid var(--line); border-radius:14px; padding:14px; text-align:center;}
+  .sym .mark{font-size:24px; color:var(--blue2); font-weight:bold; min-height:34px;}
+  .sym .name{font-size:14px; font-weight:bold; margin:4px 0;}
+  .sym .desc{font-size:12px; color:var(--sub);}
+  .scale-keys{display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:8px 0;}
+  .key{width:42px; height:90px; border-radius:0 0 8px 8px; border:1px solid #cdc9da; background:#fff; color:var(--ink); font-weight:bold; font-size:12px; cursor:pointer; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px;}
+  .key.acc{background:#e8e4f3; border-color:var(--blue);}
+  .key.lead{background:#f3ead6; border-color:var(--gold);}
+  .key.active{background:var(--blue); color:#fff;}
+  .met-dot{display:flex; gap:8px; justify-content:center; margin:12px 0; flex-wrap:wrap;}
+  .grp{display:flex; gap:7px; padding:0 8px;}
+  .dot{width:16px; height:16px; border-radius:50%; background:#cdc9da;}
+  .dot.big{width:22px; height:22px;}
+  .dot.on{background:var(--blue); transform:scale(1.2);}
+  .dot.on.acc{background:var(--plum);}
+  .form-bar{display:flex; gap:6px; margin:10px 0;}
+  .seg{flex:1; text-align:center; padding:14px 6px; border-radius:10px; font-weight:bold; color:#fff;}
+  .seg.A{background:var(--blue);} .seg.B{background:var(--plum);}
+  .seg.lit{outline:4px solid var(--gold);}
+  figure{margin:0 0 12px;} figure img{width:100%; max-height:430px; object-fit:cover; border-radius:12px; display:block; background:#dedbe8;}
+  figcaption{font-size:11px; color:var(--sub); margin-top:4px;}
+  .word{background:#f4f3fa; border-left:4px solid var(--blue); padding:8px 12px; margin:8px 0; border-radius:0 8px 8px 0;}
+  .word b{color:var(--blue2);}
+  .cmp{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0;}
+  .cmp .col{flex:1 1 220px; background:#f4f3fa; border:2px solid var(--line); border-radius:12px; padding:12px;}
+  .cmp .col h4{margin:0 0 6px; font-size:15px; color:var(--blue2);}
+  .cmp .col.y{border-color:var(--plum);} .cmp .col.y h4{color:var(--plum);}
+  .cmp .col ul{margin:6px 0 0; padding-left:18px; font-size:13px;}
+  .quiz-q{font-size:16px; font-weight:bold; margin:6px 0 10px;}
+  .quiz-opt{display:block; width:100%; text-align:left; margin:6px 0; padding:12px; border:2px solid var(--line); background:#fff; border-radius:10px; font-size:15px; font-family:inherit; cursor:pointer;}
+  .quiz-opt.ok{background:#e7f1ea; border-color:var(--green2);}
+  .quiz-opt.ng{background:#fbeceb; border-color:#d9534f;}
+  .note{font-size:12px; color:var(--sub); text-align:center; margin-top:8px;}
+  .pill{display:inline-block; background:#e6e3f2; color:var(--blue2); border-radius:999px; padding:2px 10px; font-size:12px; margin:2px;}
+  footer{text-align:center; font-size:11px; color:var(--sub); padding:18px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏯 荒城の月　調べラボ</h1>
+  <p>土井晩翠 作詞／滝 廉太郎 作曲（1901年）― 短調の響きと栄枯盛衰を味わおう ―</p>
+</header>
+<nav id="nav"></nav>
+<main>
+  <section class="panel" data-key="minor">
+    <div class="card">
+      <h2>🎼 短調の響きを聴こう</h2>
+      <p class="lead">「荒城の月」は <b>短調</b>（ロ短調）の曲。長調の明るさに対して、短調は<b>もの悲しく・しずか</b>な響き。聴きくらべよう。（鳴るのは練習用の短い音で、曲の旋律ではありません）</p>
+      <div class="row">
+        <div class="sym"><div class="mark">長調</div><div class="name">明るい和音</div><div class="desc">ド・ミ・ソ の感じ</div>
+          <button class="btn ghost" onclick="chord('maj')">長三和音</button></div>
+        <div class="sym"><div class="mark">短調</div><div class="name">くらい和音</div><div class="desc">ラ・ド・ミ の感じ</div>
+          <button class="btn plum" onclick="chord('min')">短三和音</button></div>
+      </div>
+      <h3>「導音（みちびくおん）」のひみつ</h3>
+      <p class="lead">短調で、主音の<b>半音下</b>の音を半音上げると、主音へ<b>引きつけられる</b>緊張感が生まれます。これが <b>導音</b>。滝の原曲は「花の宴（はなのえん）」のところでこの半音（導音）を使っています。</p>
+      <div class="row">
+        <div class="sym"><div class="mark">♯ あり</div><div class="name">導音あり（滝の原曲）</div><div class="desc">主音へ強く向かう</div>
+          <button class="btn gold" onclick="cadence(true)">聴く</button></div>
+        <div class="sym"><div class="mark">♮ なし</div><div class="name">導音なし</div><div class="desc">やわらかく落ちつく</div>
+          <button class="btn ghost" onclick="cadence(false)">聴く</button></div>
+      </div>
+      <p class="note">🔊 音が出ないときは一度画面をタップしてね。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="scale">
+    <div class="card">
+      <h2>🎹 ロ短調（ろたんちょう）の音階</h2>
+      <p class="lead">この曲の調は <span class="pill">ロ短調</span>。主音は「シ」。タップして鳴らそう。下のボタンで<b>自然短音階</b>と<b>和声短音階</b>を切りかえられます。</p>
+      <div class="scale-keys" id="scaleKeys"></div>
+      <div style="text-align:center">
+        <button class="btn" onclick="playScale(1)">▶ のぼる</button>
+        <button class="btn ghost" onclick="playScale(-1)">▼ おりる</button>
+      </div>
+      <div style="text-align:center; margin-top:6px">
+        <button class="btn green" id="harmBtn" onclick="toggleHarm()">いまは：自然短音階</button>
+      </div>
+      <p class="note" id="scaleNote">シ・ド♯・レ・ミ・ファ♯・ソ・ラ・シ　— ♯が2つ（ド・ファ）。もの悲しい響き。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="beat">
+    <div class="card">
+      <h2>🥁 4分の4拍子を感じよう</h2>
+      <p class="lead">「荒城の月」は <span class="pill">4分の4拍子</span> <span class="pill">♩= 60〜69 ぐらい</span>。1小節に4拍。ゆったりと、おごそかに。</p>
+      <div class="met-dot" id="metDots"></div>
+      <div style="text-align:center"><button class="btn" id="metBtn" onclick="toggleMet()">▶ スタート</button></div>
+      <p class="note">アクセント（むらさき）が1拍目。山田耕筰の編曲では、これよりさらに<b>ゆっくり</b>歌われます。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="form">
+    <div class="card">
+      <h2>🏯 二部形式のしくみ ― A と B</h2>
+      <p class="lead">「荒城の月」は <span class="pill">二部形式</span>。大きく <b>A</b> と <b>B</b> の2つのまとまりからできています。</p>
+      <div class="form-bar" id="formBar">
+        <div class="seg A" data-seg="A">A<br><small>静かに語りだす</small></div>
+        <div class="seg B" data-seg="B">B<br><small>音が高まり、また沈む</small></div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn" onclick="playForm('A')">A を聴く</button>
+        <button class="btn plum" onclick="playForm('B')">B を聴く</button>
+        <button class="btn ghost" onclick="playForm('AB')">A→B 通して</button>
+      </div>
+      <p class="note">Bで音が高まり気持ちが高まって、また静かにしずんでいく ― 栄えたものが衰える「栄枯盛衰」の趣。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="scene">
+    <div class="card">
+      <h2>📜 荒れた城の情景 ― ことばの意味</h2>
+      <p class="lead">むかし栄えた城も、いまは荒れはてている。変わらず照らす月の光に、<b>栄枯盛衰（えいこせいすい）</b>の世のはかなさを思う歌です。</p>
+      <figure><img id="imgScene" alt="荒れた城跡"><figcaption id="capScene"></figcaption></figure>
+      <h3>ことばの意味（文語・歴史的かなづかい）</h3>
+      <div class="word"><b>高楼（こうろう）</b>… 高い建物。城の高い御殿（ごてん）。</div>
+      <div class="word"><b>花の宴（はなのえん）</b>… 花見の宴会（えんかい）。栄えていたころのにぎわい。</div>
+      <div class="word"><b>めぐる盃（さかずき）</b>… 順にまわす酒のさかずき。</div>
+      <div class="word"><b>千代（ちよ）の松が枝（え）</b>… 千年も生きる松の枝。長い年月のたとえ。</div>
+      <div class="word"><b>栄枯（えいこ）</b>… 栄えることと、おとろえること。</div>
+      <div class="word"><b>天上影（てんじょうかげ）は変わらねど</b>… 空の月の光は変わらないけれど。</div>
+      <h3>滝と山田 ― ふたつの「荒城の月」</h3>
+      <div class="cmp">
+        <div class="col"><h4>滝 廉太郎（原曲・1901年）</h4>
+          <ul><li>ロ短調・無伴奏の旋律</li><li>「花の宴」に半音（導音）あり</li><li>テンポはやや速め</li></ul></div>
+        <div class="col y"><h4>山田耕筰（編曲・1917年）</h4>
+          <ul><li>ピアノ伴奏をつけた</li><li>その半音（♯）を取りのぞいた</li><li>テンポをほぼ半分にゆっくり</li></ul></div>
+      </div>
+      <p style="font-size:14px">作曲した<b>滝 廉太郎（たき れんたろう）</b>は23歳で世を去った天才。作詞は<b>土井晩翠（どい ばんすい）</b>。のちに<b>山田耕筰（やまだ こうさく）</b>が編曲し、いま広く歌われています。城のモデルは会津若松の鶴ヶ城、仙台の青葉城などといわれます。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="quiz">
+    <div class="card">
+      <h2>❓ ふりかえりクイズ</h2>
+      <p class="lead">学んだことを確かめよう。</p>
+      <div id="quizBox"></div>
+      <div style="text-align:center"><button class="btn ghost" onclick="resetQuiz()">もう一度</button></div>
+      <p class="note" id="quizScore"></p>
+    </div>
+  </section>
+</main>
+<footer>荒城の月 調べラボ ／ 著作権セーフ設計（楽曲そのものは再生せず、短調や形式を体験する練習用アプリ）<br>本物の演奏は授業で動画・CDで聴きましょう。　build v1</footer>
+<script>
+let AC=null;
+function ac(){ if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();} if(AC.state==='suspended')AC.resume(); return AC; }
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+function voice(midi,t,dur,vol=0.3,decay=true,ctx){
+  const a=ctx||ac(); const o=a.createOscillator(), g=a.createGain(), o2=a.createOscillator(), g2=a.createGain();
+  o.type='triangle'; o2.type='sine'; o.frequency.value=mtof(midi); o2.frequency.value=mtof(midi);
+  const f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=2000;
+  o.connect(g); o2.connect(g2); g.connect(f); g2.connect(f); f.connect(a.destination);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.03);
+  g2.gain.setValueAtTime(0,t); g2.gain.linearRampToValueAtTime(vol*0.5,t+0.03);
+  if(decay){ g.gain.exponentialRampToValueAtTime(0.0001,t+dur); g2.gain.exponentialRampToValueAtTime(0.0001,t+dur); }
+  else { g.gain.setValueAtTime(vol,t+dur-0.06); g.gain.linearRampToValueAtTime(0.0001,t+dur);
+         g2.gain.setValueAtTime(vol*0.5,t+dur-0.06); g2.gain.linearRampToValueAtTime(0.0001,t+dur); }
+  o.start(t); o2.start(t); o.stop(t+dur+0.05); o2.stop(t+dur+0.05);
+}
+function click(t,strong){
+  const a=ac(); const o=a.createOscillator(), g=a.createGain();
+  o.frequency.value=strong?1200:800; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(strong?0.5:0.26,t+0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.09); o.start(t); o.stop(t+0.1);
+}
+// ロ短調: B C# D E F# G A(/A#) B
+const BminNat=[59,61,62,64,66,67,69,71];
+const BminHar=[59,61,62,64,66,67,70,71];
+const namesNat=['シ','ド♯','レ','ミ','ファ♯','ソ','ラ','シ'];
+const namesHar=['シ','ド♯','レ','ミ','ファ♯','ソ','ラ♯','シ'];
+const accNat=[false,true,false,false,true,false,false,false];
+const accHar=[false,true,false,false,true,false,false,false];
+const leadHar=[false,false,false,false,false,false,true,false];
+let harm=false;
+function curScale(){ return harm?BminHar:BminNat; }
+const motif=[66,69,71,69,67,66,64];     // F# A B A G F# E
+const motifB=[74,76,78,79,78,76,74];    // D E F# G F# E D
+function chord(kind){
+  const a=ac(); const t=a.currentTime+0.05;
+  const notes = kind==='maj' ? [60,64,67] : [60,63,67]; // C major vs C minor triad
+  notes.forEach(m=>voice(m,t,1.1,0.26,true));
+}
+function cadence(lead){
+  const a=ac(); let t=a.currentTime+0.05; const d=0.42;
+  // G - (A# or A) - B  : approach to tonic シ
+  const seq = lead ? [67,70,71] : [67,69,71];
+  seq.forEach((m,i)=>voice(m,t+i*d,d*0.95,0.3));
+}
+let metOn=false, metTimer=null, beat=0;
+const QN=60/63;
+function buildDots(){
+  const box=document.getElementById('metDots'); box.innerHTML='';
+  const gd=document.createElement('div'); gd.className='grp';
+  for(let s=0;s<4;s++){ const d=document.createElement('div'); d.className='dot'+(s===0?' big':''); d.dataset.s=s; gd.appendChild(d);} box.appendChild(gd);
+}
+function clearDots(){ document.querySelectorAll('#metDots .dot').forEach(d=>d.classList.remove('on','acc')); }
+function toggleMet(){ metOn=!metOn; document.getElementById('metBtn').textContent=metOn?'■ ストップ':'▶ スタート';
+  if(metOn){ ac(); beat=0; sched(); } else { clearTimeout(metTimer); clearDots(); } }
+function sched(){
+  const a=ac(); const now=a.currentTime+0.03; const s=beat%4;
+  click(now, s===0);
+  setTimeout(()=>{ clearDots(); const d=document.querySelector('#metDots .dot[data-s="'+s+'"]'); if(d){d.classList.add('on'); if(s===0)d.classList.add('acc');} }, 30);
+  beat++; metTimer=setTimeout(sched, QN*1000);
+}
+function buildScale(){
+  const box=document.getElementById('scaleKeys'); box.innerHTML='';
+  const sc=curScale(), nm=harm?namesHar:namesNat, ac2=harm?accHar:accNat, ld=harm?leadHar:[];
+  sc.forEach((m,i)=>{ const k=document.createElement('div'); k.className='key'+(ac2[i]?' acc':'')+((ld[i])?' lead':''); k.textContent=nm[i];
+    k.onclick=()=>{ const t=ac().currentTime+0.02; voice(m,t,0.7,0.32); k.classList.add('active'); setTimeout(()=>k.classList.remove('active'),300); };
+    box.appendChild(k); });
+}
+function toggleHarm(){ harm=!harm; document.getElementById('harmBtn').textContent='いまは：'+(harm?'和声短音階':'自然短音階');
+  document.getElementById('scaleNote').textContent = harm
+    ? 'シ・ド♯・レ・ミ・ファ♯・ソ・ラ♯・シ　— 7番目の「ラ」を半音上げて導音に。主音へ強く向かう。'
+    : 'シ・ド♯・レ・ミ・ファ♯・ソ・ラ・シ　— ♯が2つ（ド・ファ）。もの悲しい響き。';
+  buildScale(); }
+function playScale(dir){
+  const a=ac(); let t=a.currentTime+0.05; const sc=curScale(); const seq=dir>0?sc:[...sc].reverse();
+  const keys=[...document.querySelectorAll('#scaleKeys .key')];
+  seq.forEach((m,i)=>{ voice(m,t+i*0.36,0.34,0.32);
+    setTimeout(()=>{ const idx=dir>0?i:(seq.length-1-i); keys[idx].classList.add('active'); setTimeout(()=>keys[idx].classList.remove('active'),260);}, (i*0.36+0.05)*1000); });
+}
+function playForm(which){
+  const a=ac(); let t=a.currentTime+0.05; const bt=0.5;
+  const segs=document.querySelectorAll('#formBar .seg');
+  const lit=(name)=>segs.forEach(s=>s.classList.toggle('lit',s.dataset.seg===name));
+  function run(phrase,start,vol,name,rit){ setTimeout(()=>lit(name), Math.max(0,(start-a.currentTime))*1000);
+    let tt=start; phrase.forEach((m,i)=>{ const d=rit?bt*(1+i*0.08):bt; voice(m,tt,d*0.9,vol); tt+=d; }); }
+  if(which==='A'){ run(motif,t,0.3,'A'); }
+  else if(which==='B'){ run(motifB,t,0.34,'B',true); }
+  else { run(motif,t,0.3,'A'); run(motifB,t+motif.length*bt+0.25,0.34,'B',true); }
+  setTimeout(()=>segs.forEach(s=>s.classList.remove('lit')),5500);
+}
+function setImg(){ document.getElementById('imgScene').src='img/kojo.jpg'; document.getElementById('capScene').textContent='荒れた城跡（石垣） © Wikimedia Commons'; }
+const QUIZ=[
+  {q:'「荒城の月」の作曲者は？',o:['滝 廉太郎','山田耕筰','成田為三'],a:0},
+  {q:'作詞をしたのは？',o:['土井晩翠','林古渓','島崎藤村'],a:0},
+  {q:'この曲の調は？',o:['ハ長調','ロ短調','ヘ長調'],a:1},
+  {q:'拍子は？',o:['4分の4拍子','8分の6拍子','4分の3拍子'],a:0},
+  {q:'曲の形式は？',o:['二部形式','ロンド形式','ソナタ形式'],a:0},
+  {q:'のちにこの曲を編曲したのは？',o:['山田耕筰','中田喜直','團伊玖磨'],a:0},
+  {q:'山田耕筰の編曲で変えたことは？',o:['歌詞を全部変えた','半音を取り、テンポをゆっくりにし伴奏をつけた','長調にした'],a:1},
+  {q:'「栄枯」の意味は？',o:['花の名前','栄えることと、おとろえること','城の名前'],a:1},
+  {q:'短調が表しているのは？',o:['にぎやかな喜び','もの悲しさ・栄枯盛衰','元気な行進'],a:1},
+];
+let qi=0,qok=0;
+function renderQuiz(){
+  const box=document.getElementById('quizBox');
+  if(qi>=QUIZ.length){ box.innerHTML='<p class="quiz-q">🎉 おわり！</p>'; document.getElementById('quizScore').textContent='正解 '+qok+' / '+QUIZ.length; return; }
+  const it=QUIZ[qi]; box.innerHTML='<div class="quiz-q">Q'+(qi+1)+'. '+it.q+'</div>';
+  it.o.forEach((op,idx)=>{ const b=document.createElement('button'); b.className='quiz-opt'; b.textContent=op;
+    b.onclick=()=>{ if(idx===it.a){b.classList.add('ok');qok++;}else{b.classList.add('ng');box.querySelectorAll('.quiz-opt')[it.a].classList.add('ok');}
+      box.querySelectorAll('.quiz-opt').forEach(x=>x.disabled=true); setTimeout(()=>{qi++;renderQuiz();},850); };
+    box.appendChild(b); });
+  document.getElementById('quizScore').textContent='';
+}
+function resetQuiz(){ qi=0; qok=0; renderQuiz(); }
+const TABS=[['minor','🎼 短調の響き'],['scale','🎹 ロ短調'],['beat','🥁 拍子'],['form','🏯 形式'],['scene','📜 情景・ことば'],['quiz','❓ クイズ']];
+function buildNav(){ const nav=document.getElementById('nav'); TABS.forEach(([k,label])=>{ const b=document.createElement('button'); b.textContent=label; b.dataset.k=k; b.onclick=()=>show(k); nav.appendChild(b); }); }
+function show(key){ document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('show',p.dataset.key===key));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.k===key));
+  if(key!=='beat'&&metOn){toggleMet();} }
+buildNav(); buildScale(); buildDots(); setImg(); renderQuiz();
+const initKey=(location.hash||'').replace('#',''); show(TABS.some(t=>t[0]===initKey)?initKey:'minor');
+document.body.addEventListener('touchstart',()=>ac(),{once:true});
+window.__audioPeak=async function(){
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext; const oc=new OAC(1,44100*3,44100);
+  let t=0.05; motif.forEach((m,i)=>{ voice(m,t+i*0.3,0.3,0.3,true,oc); });
+  BminNat.forEach((m,i)=>{ voice(m,2.4+i*0.05,0.28,0.3,true,oc); });
+  const buf=await oc.startRendering(); const ch=buf.getChannelData(0); let peak=0;
+  for(let i=0;i<ch.length;i++){ const v=Math.abs(ch[i]); if(v>peak)peak=v; } return peak;
+};
+</script>
+</body>
+</html>
