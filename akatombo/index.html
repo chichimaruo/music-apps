@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>赤とんぼ 表現ラボ</title>
+<style>
+  :root{
+    --bg:#fbf2ec; --card:#ffffff; --ink:#3a2a26; --sub:#6b5650;
+    --green:#7a7040; --green2:#5e5630; --blue:#c25b3a; --blue2:#9c3f28;
+    --plum:#b5654a; --gold:#d99a3a; --line:#ecdcd1;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:"UD デジタル 教科書体 N-B","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif; line-height:1.6;}
+  header{background:linear-gradient(135deg,#9c3f28,#e0894a); color:#fff; padding:18px 16px; text-align:center;}
+  header h1{margin:0; font-size:22px; letter-spacing:.04em;}
+  header p{margin:4px 0 0; font-size:13px; opacity:.94;}
+  nav{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:12px; background:#f3e1d6; position:sticky; top:0; z-index:5; border-bottom:1px solid var(--line);}
+  nav button{border:2px solid var(--blue); background:#fff; color:var(--blue2); border-radius:999px; padding:8px 14px; font-size:14px; font-weight:bold; font-family:inherit; cursor:pointer;}
+  nav button.active{background:var(--blue); color:#fff;}
+  main{max-width:760px; margin:0 auto; padding:16px;}
+  .panel{display:none;} .panel.show{display:block; animation:fade .25s;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:16px; box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  h2{font-size:19px; margin:0 0 10px; color:var(--blue2);}
+  h3{font-size:16px; margin:14px 0 6px; color:var(--plum);}
+  p.lead{font-size:14px; color:var(--sub); margin:2px 0 12px;}
+  .btn{display:inline-flex; align-items:center; gap:6px; justify-content:center; border:none; border-radius:12px; padding:12px 16px; font-size:15px; font-weight:bold; font-family:inherit; color:#fff; background:var(--blue); cursor:pointer; margin:4px;}
+  .btn.plum{background:var(--plum);} .btn.green{background:var(--green2);} .btn.gold{background:var(--gold); color:#3a2a26;}
+  .btn.ghost{background:#f6ece6; color:var(--blue2); border:2px solid var(--blue);}
+  .btn:active{transform:scale(.97);}
+  .row{display:flex; flex-wrap:wrap; gap:8px;}
+  .sym{flex:1 1 150px; min-width:140px; background:#fbf3ee; border:2px solid var(--line); border-radius:14px; padding:14px; text-align:center;}
+  .sym .mark{font-size:26px; color:var(--blue2); font-weight:bold; min-height:34px;}
+  .sym .name{font-size:14px; font-weight:bold; margin:4px 0;}
+  .sym .desc{font-size:12px; color:var(--sub);}
+  .scale-keys{display:flex; gap:4px; justify-content:center; flex-wrap:wrap; margin:8px 0;}
+  .key{width:42px; height:90px; border-radius:0 0 8px 8px; border:1px solid #ddcbbf; background:#fff; color:var(--ink); font-weight:bold; font-size:12px; cursor:pointer; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px;}
+  .key.flat{background:#f6e6da; border-color:var(--blue);}
+  .key.active{background:var(--blue); color:#fff;}
+  .met-dot{display:flex; gap:8px; justify-content:center; margin:12px 0; flex-wrap:wrap;}
+  .grp{display:flex; gap:7px; padding:0 8px;}
+  .dot{width:16px; height:16px; border-radius:50%; background:#e0cdbf;}
+  .dot.big{width:22px; height:22px;}
+  .dot.on{background:var(--blue); transform:scale(1.2);}
+  .dot.on.acc{background:var(--gold);}
+  .form-bar{display:flex; gap:6px; margin:10px 0;}
+  .seg{flex:1; text-align:center; padding:14px 6px; border-radius:10px; font-weight:bold; color:#fff;}
+  .seg.A{background:var(--blue);} .seg.B{background:var(--plum);}
+  .seg.lit{outline:4px solid var(--gold);}
+  figure{margin:0 0 12px;} figure img{width:100%; max-height:430px; object-fit:cover; border-radius:12px; display:block; background:#ecdcd1;}
+  figcaption{font-size:11px; color:var(--sub); margin-top:4px;}
+  .word{background:#fbf3ee; border-left:4px solid var(--blue); padding:8px 12px; margin:8px 0; border-radius:0 8px 8px 0;}
+  .word b{color:var(--blue2);}
+  .acc-demo{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0;}
+  .acc-demo .col{flex:1 1 200px; background:#fbf3ee; border:2px solid var(--line); border-radius:12px; padding:12px; text-align:center;}
+  .acc-demo .col b{color:var(--blue2);}
+  .quiz-q{font-size:16px; font-weight:bold; margin:6px 0 10px;}
+  .quiz-opt{display:block; width:100%; text-align:left; margin:6px 0; padding:12px; border:2px solid var(--line); background:#fff; border-radius:10px; font-size:15px; font-family:inherit; cursor:pointer;}
+  .quiz-opt.ok{background:#eef2e0; border-color:var(--green2);}
+  .quiz-opt.ng{background:#fbeceb; border-color:#d9534f;}
+  .note{font-size:12px; color:var(--sub); text-align:center; margin-top:8px;}
+  .pill{display:inline-block; background:#f6e0d3; color:var(--blue2); border-radius:999px; padding:2px 10px; font-size:12px; margin:2px;}
+  footer{text-align:center; font-size:11px; color:var(--sub); padding:18px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🌅 赤とんぼ　表現ラボ</h1>
+  <p>三木露風 作詞／山田耕筰 作曲（1927年）― 夕焼け空の郷愁を歌おう ―</p>
+</header>
+<nav id="nav"></nav>
+<main>
+  <section class="panel" data-key="sym">
+    <div class="card">
+      <h2>🎼 表現を体験しよう</h2>
+      <p class="lead">「赤とんぼ」は、夕焼けの空をなつかしむ <b>やわらかな</b> 歌。<b>ふつう</b>と聴きくらべよう。（鳴るのは練習用の短い変ホ長調の音で、曲の旋律ではありません）</p>
+      <div class="row">
+        <div class="sym"><div class="mark">p</div><div class="name">ピアノ</div><div class="desc">弱く・やさしく</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn plum" onclick="demo('p')">p で</button></div>
+        <div class="sym"><div class="mark">&gt;</div><div class="name">デクレッシェンド</div><div class="desc">だんだん弱く</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn plum" onclick="demo('dim')">dim.</button></div>
+        <div class="sym"><div class="mark">rit.</div><div class="name">リタルダンド</div><div class="desc">だんだん遅く</div>
+          <button class="btn ghost" onclick="demo('plain')">ふつう</button><button class="btn plum" onclick="demo('rit')">rit. で</button></div>
+      </div>
+      <p class="note">🔊 音が出ないときは一度画面をタップしてね。　弱くやさしい声で、夕暮れのしずけさを表します。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="beat">
+    <div class="card">
+      <h2>🥁 4分の3拍子を感じよう</h2>
+      <p class="lead">「赤とんぼ」は <span class="pill">4分の3拍子</span> <span class="pill">♩= 58〜72 ぐらい</span>。1小節に3拍。ゆったりと、ゆれるように。</p>
+      <div class="met-dot" id="metDots"></div>
+      <div style="text-align:center"><button class="btn" id="metBtn" onclick="toggleMet()">▶ スタート</button></div>
+      <p class="note">アクセント（金色）が1拍目。「ぶ〜らん、ぶ〜らん」と、背中にゆられるような3拍子。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="scale">
+    <div class="card">
+      <h2>🎹 変ホ長調（へんほちょうちょう）の音階</h2>
+      <p class="lead">この曲の調は <span class="pill">変ホ長調</span>。主音は「ミ♭」。<b>ミ・ラ・シ</b> に♭がつきます（♭が3つ）。タップして鳴らそう。</p>
+      <div class="scale-keys" id="scaleKeys"></div>
+      <div style="text-align:center">
+        <button class="btn" onclick="playScale(1)">▶ のぼる</button>
+        <button class="btn ghost" onclick="playScale(-1)">▼ おりる</button>
+      </div>
+      <p class="note">ミ♭・ファ・ソ・ラ♭・シ♭・ド・レ・ミ♭　— あたたかく、やわらかい響き。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="word">
+    <div class="card">
+      <h2>🎵 ことばと旋律 ― 山田耕筰の工夫</h2>
+      <p class="lead">山田耕筰は、<b>日本語の自然なアクセント（高い・低い）と、旋律の上がり下がりが合う</b>ように作曲しました。だから歌うと、ことばが自然に聞こえます。</p>
+      <h3>アクセントってなに？ ― 聴きくらべ</h3>
+      <p class="lead">同じ「あめ」でも、高さの動きで意味が変わります。日本語には、ことばごとに高い・低いの形（アクセント）があります。</p>
+      <div class="acc-demo">
+        <div class="col"><b>雨（あめ）</b><br><small>高 → 低</small><br>
+          <button class="btn ghost" onclick="accent('hl')">聴く</button></div>
+        <div class="col"><b>飴（あめ）</b><br><small>低 → 高</small><br>
+          <button class="btn plum" onclick="accent('lh')">聴く</button></div>
+      </div>
+      <p class="lead">「赤とんぼ」では、こうしたことばの高さの動きに旋律をぴったり合わせています。だから、メロディーにのせるだけで自然な日本語に聞こえるのです。</p>
+      <p class="note">山田耕筰は「赤とんぼ」のほか「この道」「からたちの花」など、日本語をいかした名曲を多く残しました。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="scene">
+    <div class="card">
+      <h2>🌅 夕焼けの情景 ― ことばの意味</h2>
+      <p class="lead">夕焼け空にとぶ赤とんぼ。幼いころ、子守りのねえやに背負われて見た、なつかしい思い出をうたう歌です。</p>
+      <figure><img id="imgScene" alt="夕焼けと赤とんぼ"><figcaption id="capScene"></figcaption></figure>
+      <h3>ことばの意味</h3>
+      <div class="word"><b>負われて（おわれて）</b>… 背負われて。ねえやの背中におんぶされて。</div>
+      <div class="word"><b>ねえや</b>… 子守りをしてくれた少女。</div>
+      <div class="word"><b>十五で姐や（ねえや）は嫁に行き</b>… 子守りのねえやは十五歳でお嫁に行き。</div>
+      <div class="word"><b>お里（さと）のたより</b>… 故郷（実家）からの手紙・知らせ。</div>
+      <div class="word"><b>絶え果てた（たえはてた）</b>… すっかり来なくなった。</div>
+      <div class="word"><b>桑の実（くわのみ）</b>… 桑の木の実。摘んで食べた、幼い日の思い出。</div>
+      <h3>この歌のこと</h3>
+      <p style="font-size:14px">作詞は<b>三木露風（みき ろふう）</b>、作曲は<b>山田耕筰（やまだ こうさく）</b>。1927年（昭和2年）の歌曲です。露風が幼いころのふるさと（兵庫県たつの市）の思い出をもとにした詩に、山田が日本語をいかした旋律をつけました。</p>
+    </div>
+  </section>
+  <section class="panel" data-key="quiz">
+    <div class="card">
+      <h2>❓ ふりかえりクイズ</h2>
+      <p class="lead">学んだことを確かめよう。</p>
+      <div id="quizBox"></div>
+      <div style="text-align:center"><button class="btn ghost" onclick="resetQuiz()">もう一度</button></div>
+      <p class="note" id="quizScore"></p>
+    </div>
+  </section>
+</main>
+<footer>赤とんぼ 表現ラボ ／ 著作権セーフ設計（楽曲そのものは再生せず、表現を体験する練習用アプリ）<br>本物の演奏は授業で動画・CDで聴きましょう。　この曲は著作権存続中（校外配布不可）。　build v1</footer>
+<script>
+let AC=null;
+function ac(){ if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();} if(AC.state==='suspended')AC.resume(); return AC; }
+const mtof=m=>440*Math.pow(2,(m-69)/12);
+function voice(midi,t,dur,vol=0.3,decay=true,ctx){
+  const a=ctx||ac(); const o=a.createOscillator(), g=a.createGain(), o2=a.createOscillator(), g2=a.createGain();
+  o.type='triangle'; o2.type='sine'; o.frequency.value=mtof(midi); o2.frequency.value=mtof(midi);
+  const f=a.createBiquadFilter(); f.type='lowpass'; f.frequency.value=2100;
+  o.connect(g); o2.connect(g2); g.connect(f); g2.connect(f); f.connect(a.destination);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.03);
+  g2.gain.setValueAtTime(0,t); g2.gain.linearRampToValueAtTime(vol*0.5,t+0.03);
+  if(decay){ g.gain.exponentialRampToValueAtTime(0.0001,t+dur); g2.gain.exponentialRampToValueAtTime(0.0001,t+dur); }
+  else { g.gain.setValueAtTime(vol,t+dur-0.06); g.gain.linearRampToValueAtTime(0.0001,t+dur);
+         g2.gain.setValueAtTime(vol*0.5,t+dur-0.06); g2.gain.linearRampToValueAtTime(0.0001,t+dur); }
+  o.start(t); o2.start(t); o.stop(t+dur+0.05); o2.stop(t+dur+0.05);
+}
+function click(t,strong){
+  const a=ac(); const o=a.createOscillator(), g=a.createGain();
+  o.frequency.value=strong?1250:820; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(0.0001,t); g.gain.linearRampToValueAtTime(strong?0.5:0.26,t+0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.09); o.start(t); o.stop(t+0.1);
+}
+// 変ホ長調: Eb F G Ab Bb C D Eb
+const EbMaj=[63,65,67,68,70,72,74,75];
+const names=['ミ♭','ファ','ソ','ラ♭','シ♭','ド','レ','ミ♭'];
+const flats=[true,false,false,true,true,false,false,true];
+const motif=[70,68,67,68,70,72,70];   // practice motif (Bb Ab G Ab Bb C Bb) - not the song
+function demo(kind){
+  const a=ac(); let t=a.currentTime+0.05; const beat=0.5;
+  if(kind==='rit'){ let tt=t; motif.forEach((m,i)=>{ const d=beat*(1+i*0.16); voice(m,tt,d*0.95,0.28); tt+=d; }); return; }
+  motif.forEach((m,i)=>{
+    let vol=0.3;
+    if(kind==='p')vol=0.16;
+    if(kind==='dim')vol=0.36-0.26*(i/(motif.length-1));
+    voice(m,t+i*beat,beat*0.9,vol);
+  });
+}
+function accent(kind){
+  const a=ac(); let t=a.currentTime+0.05; const d=0.45;
+  const seq = kind==='hl' ? [72,67] : [67,72]; // high-low vs low-high
+  seq.forEach((m,i)=>voice(m,t+i*d,d*0.95,0.3));
+}
+let metOn=false, metTimer=null, beat=0;
+const QN=60/63;
+function buildDots(){
+  const box=document.getElementById('metDots'); box.innerHTML='';
+  const gd=document.createElement('div'); gd.className='grp';
+  for(let s=0;s<3;s++){ const d=document.createElement('div'); d.className='dot'+(s===0?' big':''); d.dataset.s=s; gd.appendChild(d);} box.appendChild(gd);
+}
+function clearDots(){ document.querySelectorAll('#metDots .dot').forEach(d=>d.classList.remove('on','acc')); }
+function toggleMet(){ metOn=!metOn; document.getElementById('metBtn').textContent=metOn?'■ ストップ':'▶ スタート';
+  if(metOn){ ac(); beat=0; sched(); } else { clearTimeout(metTimer); clearDots(); } }
+function sched(){
+  const a=ac(); const now=a.currentTime+0.03; const s=beat%3;
+  click(now, s===0);
+  setTimeout(()=>{ clearDots(); const d=document.querySelector('#metDots .dot[data-s="'+s+'"]'); if(d){d.classList.add('on'); if(s===0)d.classList.add('acc');} }, 30);
+  beat++; metTimer=setTimeout(sched, QN*1000);
+}
+function buildScale(){
+  const box=document.getElementById('scaleKeys'); box.innerHTML='';
+  EbMaj.forEach((m,i)=>{ const k=document.createElement('div'); k.className='key'+(flats[i]?' flat':''); k.textContent=names[i];
+    k.onclick=()=>{ const t=ac().currentTime+0.02; voice(m,t,0.7,0.32); k.classList.add('active'); setTimeout(()=>k.classList.remove('active'),300); };
+    box.appendChild(k); });
+}
+function playScale(dir){
+  const a=ac(); let t=a.currentTime+0.05; const seq=dir>0?EbMaj:[...EbMaj].reverse();
+  const keys=[...document.querySelectorAll('#scaleKeys .key')];
+  seq.forEach((m,i)=>{ voice(m,t+i*0.34,0.32,0.32);
+    setTimeout(()=>{ const idx=dir>0?i:(seq.length-1-i); keys[idx].classList.add('active'); setTimeout(()=>keys[idx].classList.remove('active'),260);}, (i*0.34+0.05)*1000); });
+}
+function setImg(){ document.getElementById('imgScene').src='img/akatombo.jpg'; document.getElementById('capScene').textContent='赤とんぼ（アキアカネ） © Wikimedia Commons'; }
+const QUIZ=[
+  {q:'「赤とんぼ」の作曲者は？',o:['山田耕筰','滝 廉太郎','成田為三'],a:0},
+  {q:'作詞をしたのは？',o:['三木露風','北原白秋','土井晩翠'],a:0},
+  {q:'この曲の調は？',o:['ハ長調','変ホ長調','ロ短調'],a:1},
+  {q:'拍子は？',o:['4分の4拍子','4分の3拍子','8分の6拍子'],a:1},
+  {q:'山田耕筰が工夫したのは？',o:['日本語のアクセントと旋律を合わせた','英語で作った','短調にした'],a:0},
+  {q:'「負われて」の意味は？',o:['追いかけられて','背負われて（おんぶ）','追われて逃げて'],a:1},
+  {q:'「ねえや」とは？',o:['お姉さん','子守りの少女','先生'],a:1},
+  {q:'歌われている情景は？',o:['朝の海','夕焼け空と赤とんぼ','雪の山'],a:1},
+];
+let qi=0,qok=0;
+function renderQuiz(){
+  const box=document.getElementById('quizBox');
+  if(qi>=QUIZ.length){ box.innerHTML='<p class="quiz-q">🎉 おわり！</p>'; document.getElementById('quizScore').textContent='正解 '+qok+' / '+QUIZ.length; return; }
+  const it=QUIZ[qi]; box.innerHTML='<div class="quiz-q">Q'+(qi+1)+'. '+it.q+'</div>';
+  it.o.forEach((op,idx)=>{ const b=document.createElement('button'); b.className='quiz-opt'; b.textContent=op;
+    b.onclick=()=>{ if(idx===it.a){b.classList.add('ok');qok++;}else{b.classList.add('ng');box.querySelectorAll('.quiz-opt')[it.a].classList.add('ok');}
+      box.querySelectorAll('.quiz-opt').forEach(x=>x.disabled=true); setTimeout(()=>{qi++;renderQuiz();},850); };
+    box.appendChild(b); });
+  document.getElementById('quizScore').textContent='';
+}
+function resetQuiz(){ qi=0; qok=0; renderQuiz(); }
+const TABS=[['sym','🎼 表現'],['beat','🥁 拍子'],['scale','🎹 変ホ長調'],['word','🎵 ことばと旋律'],['scene','🌅 情景・ことば'],['quiz','❓ クイズ']];
+function buildNav(){ const nav=document.getElementById('nav'); TABS.forEach(([k,label])=>{ const b=document.createElement('button'); b.textContent=label; b.dataset.k=k; b.onclick=()=>show(k); nav.appendChild(b); }); }
+function show(key){ document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('show',p.dataset.key===key));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.k===key));
+  if(key!=='beat'&&metOn){toggleMet();} }
+buildNav(); buildScale(); buildDots(); setImg(); renderQuiz();
+const initKey=(location.hash||'').replace('#',''); show(TABS.some(t=>t[0]===initKey)?initKey:'sym');
+document.body.addEventListener('touchstart',()=>ac(),{once:true});
+window.__audioPeak=async function(){
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext; const oc=new OAC(1,44100*3,44100);
+  let t=0.05; motif.forEach((m,i)=>{ voice(m,t+i*0.3,0.3,0.3,true,oc); });
+  EbMaj.forEach((m,i)=>{ voice(m,2.4+i*0.05,0.28,0.3,true,oc); });
+  const buf=await oc.startRendering(); const ch=buf.getChannelData(0); let peak=0;
+  for(let i=0;i<ch.length;i++){ const v=Math.abs(ch[i]); if(v>peak)peak=v; } return peak;
+};
+</script>
+</body>
+</html>
